@@ -26,11 +26,12 @@ CREATE TABLE `wp_sieconswc_users_voted` (
   KEY `vote_type` (`vote_type`),
   KEY `is_guest` (`is_guest`),
   KEY `post_id` (`post_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconswc_users_voted` WRITE;
 /*!40000 ALTER TABLE `wp_sieconswc_users_voted` DISABLE KEYS */;
+INSERT INTO `wp_sieconswc_users_voted` VALUES (1,'2',2,1,0,665,1593939041);
 /*!40000 ALTER TABLE `wp_sieconswc_users_voted` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

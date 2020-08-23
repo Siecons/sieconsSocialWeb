@@ -26,6 +26,7 @@ CREATE TABLE `wp_sieconsyoast_indexable_hierarchy` (
 
 LOCK TABLES `wp_sieconsyoast_indexable_hierarchy` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsyoast_indexable_hierarchy` DISABLE KEYS */;
+INSERT INTO `wp_sieconsyoast_indexable_hierarchy` VALUES (10,3,1,1),(15,3,1,1),(16,3,1,1),(17,3,1,1),(18,3,1,1),(19,3,1,1),(20,3,1,1),(34,3,1,1),(45,7,1,1),(46,7,1,1),(48,7,1,1),(54,7,1,1),(55,7,1,1),(66,61,1,1),(107,8,1,1),(111,11,1,1),(112,11,1,1),(113,11,1,1),(114,11,1,1),(115,11,1,1),(128,6,1,1),(129,6,1,1),(130,6,1,1),(131,6,1,1),(133,6,1,1),(134,7,1,1),(137,8,1,1),(138,6,1,1),(140,24,1,1),(160,11,1,1);
 /*!40000 ALTER TABLE `wp_sieconsyoast_indexable_hierarchy` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

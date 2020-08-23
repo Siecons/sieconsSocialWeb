@@ -34,12 +34,12 @@ CREATE TABLE `wp_sieconscomments` (
   KEY `comment_date_gmt` (`comment_date_gmt`),
   KEY `comment_parent` (`comment_parent`),
   KEY `comment_author_email` (`comment_author_email`(10))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconscomments` WRITE;
 /*!40000 ALTER TABLE `wp_sieconscomments` DISABLE KEYS */;
-INSERT INTO `wp_sieconscomments` VALUES (1,1,'Un comentarista de WordPress','wapuu@wordpress.example','https://wordpress.org/','','2020-08-23 19:07:09','2020-08-23 19:07:09','Hola, esto es un comentario.\nPara empezar a moderar, editar y borrar comentarios, por favor, visita la pantalla de comentarios en el escritorio.\nLos avatares de los comentaristas provienen de <a href=\"https://gravatar.com\">Gravatar</a>.',0,'1','','comment',0,0);
+INSERT INTO `wp_sieconscomments` VALUES (2,665,'ernesto','david.montano.rosabal@gmail.com','','127.0.0.1','2020-07-03 03:07:25','2020-07-02 16:07:25','Hola esto es una opiniion y Sugerencias',0,'1','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36','comment',0,1),(3,665,'ernesto','david.montano.rosabal@gmail.com','','127.0.0.1','2020-07-03 03:07:40','2020-07-02 16:07:40','Parece que si',0,'1','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36','comment',2,1),(4,665,'luisAngel','montanorosabal@gmail.com','','89.129.16.112','2020-07-05 08:50:35','2020-07-04 21:50:35','dffsd',0,'1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36','comment',0,2);
 /*!40000 ALTER TABLE `wp_sieconscomments` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
