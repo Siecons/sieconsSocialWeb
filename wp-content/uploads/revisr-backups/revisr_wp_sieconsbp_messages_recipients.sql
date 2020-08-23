@@ -9,20 +9,28 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-DROP TABLE IF EXISTS `wp_sieconsactionscheduler_claims`;
+DROP TABLE IF EXISTS `wp_sieconsbp_messages_recipients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `wp_sieconsactionscheduler_claims` (
-  `claim_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `date_created_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`claim_id`),
-  KEY `date_created_gmt` (`date_created_gmt`)
-) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `wp_sieconsbp_messages_recipients` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `thread_id` bigint(20) NOT NULL,
+  `unread_count` int(10) NOT NULL DEFAULT 0,
+  `sender_only` tinyint(1) NOT NULL DEFAULT 0,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `thread_id` (`thread_id`),
+  KEY `is_deleted` (`is_deleted`),
+  KEY `sender_only` (`sender_only`),
+  KEY `unread_count` (`unread_count`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-LOCK TABLES `wp_sieconsactionscheduler_claims` WRITE;
-/*!40000 ALTER TABLE `wp_sieconsactionscheduler_claims` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wp_sieconsactionscheduler_claims` ENABLE KEYS */;
+LOCK TABLES `wp_sieconsbp_messages_recipients` WRITE;
+/*!40000 ALTER TABLE `wp_sieconsbp_messages_recipients` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wp_sieconsbp_messages_recipients` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
