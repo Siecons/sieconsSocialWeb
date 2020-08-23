@@ -15,3 +15,6 @@ exit(0);
 1593776801_0482:"Advertencia: ernestodavid, 2.153.115.92; Plugin activated: All-in-One WP Migration File Extension (v1.6; all-in-one-wp-migration-file-extension\/all-in-one-wp-migration-file-extension.php)"
 1593776807_0304:"Advertencia: ernestodavid, 2.153.115.92; Plugin deactivated: All-in-One WP Migration (v7.24; all-in-one-wp-migration\/all-in-one-wp-migration.php)"
 1593776853_8929:"Advertencia: ernestodavid, 2.153.115.92; Plugin activated: All-in-One WP Migration (v7.24; all-in-one-wp-migration\/all-in-one-wp-migration.php)"
+1598223302_2921:"Aviso: 127.0.0.1; Identificaci\u00f3n de usuario correcta: ernesto"
+1598223320_4281:"Depuraci\u00f3n: ernesto, 127.0.0.1; Sucuri plugin has been deactivated"
+1598223320_4292:"Advertencia: ernesto, 127.0.0.1; Plugin deactivated: Sucuri Security - Auditing, Malware Scanner and Hardening (v1.8.24; sucuri-scanner\/sucuri.php)"
