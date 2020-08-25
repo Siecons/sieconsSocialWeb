@@ -73,7 +73,11 @@ function business_consultant_finder_register_required_plugins() {
 			'slug'      => 'smart-slider-3',
 			'required'  => false,
 		),
-	
+		array(
+			'name'      => 'WordPress SEO Plugin – Rank Math',
+			'slug'      => 'seo-by-rank-math',
+			'required'  => false,
+		),
 		
 		array(
 			'name'      => 'WP Fastest Cache',

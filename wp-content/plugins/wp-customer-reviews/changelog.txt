@@ -1,16 +1,3 @@
-= 3.4.5 =
-* 08/19/2020
-* [Bugfix] Allow safe html styling (bold, italic) and links to appear in review content.
-* [Bugfix] Allow safe html styling (bold, italic) to appear in review meta field values, such as review title.
-
-= 3.4.4 =
-* 08/19/2020
-* [Bugfix] Fixed escaped HTML code appearing in review content instead of line breaks.
-
-= 3.4.3 =
-* 08/18/2020
-* [Security] Fixes applied to prevent reported XSS (cross-site scripting) vulnerability. All users are encouraged to upgrade immediately.
-
 = 3.4.2 =
 * 07/31/2020
 * [Update] Added compatibility with WordPress 5.5

@@ -953,9 +953,6 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 			// get current post meta data
 			$meta = get_post_meta($post->ID, $field['id'], true);
 			
-			// xss protect
-			$meta = esc_html($meta);
-			
 			echo '<tr>',
 				 '<th style="width:30%"><label for="', $field['id'], '">', $field['name'], '</label></th>',
 				 '<td>';

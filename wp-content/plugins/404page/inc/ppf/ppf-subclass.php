@@ -3,17 +3,17 @@
 /**
  * Plugin Base Sub-Class
  *
- * Peter's Plugins Foundation 05
+ * Peter's Plugins Foundation 04
  *
- * @package    PPF05
+ * @package    PPF04
  * @author     Peter Raschendorfer
  * @license    GPL2+
  */
  
-if ( !class_exists( 'PPF05_SubClass' ) ) {
+if ( !class_exists( 'PPF04_SubClass' ) ) {
   
   
-  abstract class PPF05_SubClass extends PPF05_Class {
+  abstract class PPF04_SubClass extends PPF04_Class {
     
     /**
      * reference to core class

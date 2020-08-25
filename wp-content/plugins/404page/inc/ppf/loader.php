@@ -3,9 +3,9 @@
 /**
  * Plugin Foundation Loader
  *
- * Peter's Plugins Foundation 05
+ * Peter's Plugins Foundation 04
  *
- * @package    PPF05
+ * @package    PPF04
  * @author     Peter Raschendorfer
  * @license    GPL2+
  */

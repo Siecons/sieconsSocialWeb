@@ -9,7 +9,7 @@
  * Plugin Name: 404page - your smart custom 404 error page
  * Plugin URI: https://petersplugins.com/404page/
  * Description: Custom 404 the easy way! Set any page as custom 404 error page. No coding needed. Works with (almost) every Theme.
- * Version: 11.2.5
+ * Version: 11.2.4
  * Author: Peter Raschendorfer
  * Author URI: https://petersplugins.com
  * Text Domain: 404page

@@ -3,7 +3,7 @@ Contributors: petersplugins
 Tags: page, 404, error, error page, 404 page, page not found, page not found error, 404 error page, missing, broken link, template, 404 link, seo, custom 404, custom 404 page, custom 404 error, custom 404 error page, customize 404, customize 404 page, customize 404 error page, classicpress
 Requires at least: 4.0
 Tested up to: 5.5
-Stable tag: 11.2.5
+Stable tag: 11.2.4
 Requires PHP: 5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -170,9 +170,6 @@ The 404page plugin adds a CSS class `error404` to the `<body>` tag which can be 
 Please use the [Support Forum](https://wordpress.org/support/plugin/404page).
 
 == Changelog ==
-
-= 11.2.5 (2020-08-22) =
-* minor UI adjustments
 
 = 11.2.4 (2020-08-16) =
 * bug fix for Flamingo ([see topic](https://wordpress.org/support/topic/error-page-trashed/)) plus potentially other plugins (thanks to [garfiedo](https://wordpress.org/support/users/garfiedo/) for supporting me to find the reason)
@@ -356,9 +353,6 @@ Please use the [Support Forum](https://wordpress.org/support/plugin/404page).
 * Initial Release
 
 == Upgrade Notice ==
-
-= 11.2.5 =
-minor UI adjustments
 
 = 11.2.4 =
 bug fix for Flamingo 

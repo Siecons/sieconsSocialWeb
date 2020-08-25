@@ -3,7 +3,7 @@
  * Plugin Name: WP Customer Reviews
  * Plugin URI: http://www.gowebsolutions.com/wp-customer-reviews/
  * Description: Allows your visitors to leave business / product reviews. Testimonials are in Microdata / Microformat and may display star ratings in search results.
- * Version: 3.4.5
+ * Version: 3.4.2
  * Author: Go Web Solutions
  * Author URI: http://www.gowebsolutions.com/
  * Text Domain: wp-customer-reviews
@@ -60,26 +60,6 @@ class WPCustomerReviews3 {
 		'frontend_review_pagination' => 'html',
 		'frontend_review_rating_stars' => 'html',
 		'wp-customer-reviews-css' => 'css'
-	);
-	var $allowedFieldTags = array(
-		'i' => true,
-		'em' => true,
-		'b' => true,
-		'strong' => true
-	);
-	var $allowedContentTags = array(
-		'br' => true,
-		'p' => true,
-		'hr' => true,
-		'i' => true,
-		'em' => true,
-		'b' => true,
-		'strong' => true,
-		'a' => array(
-			'href' => array(),
-			'title' => array(),
-			'target' => array()
-		)
 	);
 	
 	function __construct() {
@@ -316,7 +296,7 @@ class WPCustomerReviews3 {
 		return $where;
 	}
 
-	function get_reviews($postid, $thispage, $opts) {
+    function get_reviews($postid, $thispage, $opts) {
 		$queryOpts = array(
 			'orderby' => 'date',
 			'order' => 'DESC',
@@ -349,6 +329,7 @@ class WPCustomerReviews3 {
 			$review = $this->get_post_custom_single($post->ID);
 			
 			$review['id'] = $post->ID;
+			$review['stars'] = $this->get_rating_template($review[$this->prefix.'_review_rating'], false);
 			
 			$params = array($this->prefix.'_review_name', $this->prefix.'_review_title', $this->prefix.'_review_website', $this->prefix.'_review_admin_response');
 			$this->param($params, $review);
@@ -386,30 +367,12 @@ class WPCustomerReviews3 {
 			if ($opts->hideresponse == 1) {
 				unset($review[$this->prefix.'_review_admin_response']);
 			}
-
-			// BEG: xss protect
-			foreach ($review as $k => $r) {
-				if ($k === $this->prefix.'_custom_fields' || $k === 'content') {
-					continue;
-				}
-
-				$review[$k] = wp_kses($r, $this->allowedFieldTags);
-			}
-
-			foreach ($review[$this->prefix.'_custom_fields'] as $k => $r) {
-				$review[$this->prefix.'_custom_fields'][$k] = wp_kses($r, $this->allowedFieldTags);
-			}
-
-			$review['content'] = wp_kses($review['content'], $this->allowedContentTags);
-			// END: xss protect
-
-			$review['stars'] = $this->get_rating_template($review[$this->prefix.'_review_rating'], false);
 			
 			$rtn->reviews[] = $review;
 		}
 		
-		return $rtn;
-	}
+        return $rtn;
+    }
 
     function iso8601($time=false) {
         if ($time === false) { $time = time(); }
@@ -524,12 +487,11 @@ class WPCustomerReviews3 {
 		// default some fields for those too lazy to use the plugin properly
 		$blog_name = get_bloginfo('name');
 		$blog_url = get_bloginfo('url');
-		
 		$business_name = $this->get_meta_or_default($parentData, $this->prefix.'_business_name', $blog_name);
 		$product_name = $this->get_meta_or_default($parentData, $this->prefix.'_product_name', $blog_name);
-		$parentData[$this->prefix.'_business_name'] = wp_kses($business_name, $this->allowedFieldTags);
-		$parentData[$this->prefix.'_product_name'] = wp_kses($product_name, $this->allowedFieldTags);
+		$parentData[$this->prefix.'_business_name'] = $business_name;
 		$parentData[$this->prefix.'_business_url'] = $blog_url;
+		$parentData[$this->prefix.'_product_name'] = $product_name;
 		
 		// todo: replace with provided image in future
 		$parentData[$this->prefix.'_business_image'] = $this->getpluginurl_abs() . 'css/1x1.png';

@@ -3,17 +3,17 @@
 /**
  * Plugin Addon Base Class
  *
- * Peter's Plugins Foundation 05
+ * Peter's Plugins Foundation 04
  *
- * @package    PPF05
+ * @package    PPF04
  * @author     Peter Raschendorfer
  * @license    GPL2+
  */
 
  
-if ( !class_exists( 'PPF05_Plugin_Addon' ) ) {
+if ( !class_exists( 'PPF04_Plugin_Addon' ) ) {
   
-  abstract class PPF05_Plugin_Addon extends PPF05_Plugin {
+  abstract class PPF04_Plugin_Addon extends PPF04_Plugin {
     
     /**
      * Base Plugin Name

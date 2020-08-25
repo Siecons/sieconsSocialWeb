@@ -4,7 +4,7 @@ Donate link: http://www.gowebsolutions.com/wp-customer-reviews/
 Tags: business, google, hcard, schema.org, hproduct, hreview, microformat, microformats, mu, places, plugin, product, rating, ratings, rdfa, review, review box, review widget, reviews, seo, service, snippet, snippets, testimonial, testimonials, widget, wordpressmu, wpmu
 Requires at least: 3.0.0
 Tested up to: 5.5
-Stable tag: 3.4.5
+Stable tag: 3.4.2
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
@@ -13,6 +13,8 @@ Allows your visitors to leave business / product reviews. Testimonials are in Mi
 == Description ==
 
 There are many sites that are crawling for user-generated reviews now, including Google Places and Google Local Search. WP Customer Reviews allows you to setup a specific page on your blog to receive customer testimonials for your business/service OR to write reviews about a product.
+
+**Big News! Version 3 has been released.** [Click here for details](http://www.gowebsolutions.com/wp-customer-reviews/?from=wpcr3_directory_notice_1 "Click here for details")
 
 * WP Multisite and Multiuser (WPMU / WPMS / Wordpress MU) compatible.
 * All submissions are moderated, which means that YOU choose which reviews get shown.
@@ -61,19 +63,6 @@ More information at: [**WP Customer Reviews**](http://www.gowebsolutions.com/wp-
 * [**Community Support Forum**](http://wordpress.org/tags/wp-customer-reviews?forum_id=10)
 
 == Changelog ==
-
-= 3.4.5 =
-* 08/19/2020
-* [Bugfix] Allow safe html styling (bold, italic) and links to appear in review content.
-* [Bugfix] Allow safe html styling (bold, italic) to appear in review meta field values, such as review title.
-
-= 3.4.4 =
-* 08/19/2020
-* [Bugfix] Fixed escaped HTML code appearing in review content instead of line breaks.
-
-= 3.4.3 =
-* 08/18/2020
-* [Security] Fixes applied to prevent reported XSS (cross-site scripting) vulnerability. All users are encouraged to upgrade immediately.
 
 = 3.4.2 =
 * 07/31/2020

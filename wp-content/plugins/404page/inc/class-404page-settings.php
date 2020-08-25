@@ -17,7 +17,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 if ( !class_exists( 'PP_404Page_Settings' ) ) {
   
-  class PP_404Page_Settings extends PPF05_Settings {
+  class PP_404Page_Settings extends PPF04_Settings {
     
     /**
 	   * sanitize settings
