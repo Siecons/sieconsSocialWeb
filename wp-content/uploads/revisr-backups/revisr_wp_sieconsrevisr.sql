@@ -19,12 +19,12 @@ CREATE TABLE `wp_sieconsrevisr` (
   `event` varchar(42) NOT NULL,
   `user` varchar(60) DEFAULT NULL,
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconsrevisr` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsrevisr` DISABLE KEYS */;
-INSERT INTO `wp_sieconsrevisr` VALUES (1,'2020-08-25 15:15:52','Successfully backed up the database.','backup','ernesto'),(2,'2020-08-25 15:15:53','Error pulling changes from the remote repository.','error','ernesto'),(3,'2020-08-25 15:18:32','Successfully backed up the database.','backup','ernesto'),(4,'2020-08-25 15:18:32','Error pulling changes from the remote repository.','error','ernesto');
+INSERT INTO `wp_sieconsrevisr` VALUES (1,'2020-08-25 15:15:52','Successfully backed up the database.','backup','ernesto'),(2,'2020-08-25 15:15:53','Error pulling changes from the remote repository.','error','ernesto'),(3,'2020-08-25 15:18:32','Successfully backed up the database.','backup','ernesto'),(4,'2020-08-25 15:18:32','Error pulling changes from the remote repository.','error','ernesto'),(5,'2020-08-25 15:20:14','Successfully backed up the database.','backup','ernesto'),(6,'2020-08-25 15:20:15','Error pulling changes from the remote repository.','error','ernesto');
 /*!40000 ALTER TABLE `wp_sieconsrevisr` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
