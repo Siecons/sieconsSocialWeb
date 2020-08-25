@@ -27,12 +27,12 @@ CREATE TABLE `wp_sieconsusers` (
   KEY `user_login_key` (`user_login`),
   KEY `user_nicename` (`user_nicename`),
   KEY `user_email` (`user_email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconsusers` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsusers` DISABLE KEYS */;
-INSERT INTO `wp_sieconsusers` VALUES (1,'ernesto','$P$BO6zzY1KHol3Y2zgFaiWpOyVxGzcdT1','ernesto','david.montano.rosabal@gmail.com','http://localhost/siecons','2020-08-23 19:07:09','',0,'ernesto');
+INSERT INTO `wp_sieconsusers` VALUES (1,'ernesto','$P$BXkS23bhRcWUL04NKqz9Q399NYZlu10','ernesto','david.montano.rosabal@gmail.com','http://localhost/siecons','2020-06-16 12:22:10','',0,'ernesto'),(2,'LuisAngel','$P$BQNZ2GWs2ZtxJnnjWCzd/ao5ZrJkoO0','luisangel','montanorosabal@gmail.com','','2020-06-24 17:07:29','',2,'luisAngel'),(4,'wdcamejo','$P$BwBWhTQf4H9qLDYbcb7EH0tnRv2yMj0','wdcamejo','wdcamejo1991@gmail.com','','2020-07-18 14:24:28','1595082268:$P$BtQeuAvLSy8Behx/sSnFTpjSXKyykn0',0,'Walter Camejo');
 /*!40000 ALTER TABLE `wp_sieconsusers` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

@@ -22,11 +22,12 @@ CREATE TABLE `wp_sieconswc_users_rated` (
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconswc_users_rated` WRITE;
 /*!40000 ALTER TABLE `wp_sieconswc_users_rated` DISABLE KEYS */;
+INSERT INTO `wp_sieconswc_users_rated` VALUES (1,665,1,'',3,1593745569);
 /*!40000 ALTER TABLE `wp_sieconswc_users_rated` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

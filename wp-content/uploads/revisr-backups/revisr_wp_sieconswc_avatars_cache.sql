@@ -25,7 +25,7 @@ CREATE TABLE `wp_sieconswc_avatars_cache` (
   KEY `user_id` (`user_id`),
   KEY `maketime` (`maketime`),
   KEY `cached` (`cached`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconswc_avatars_cache` WRITE;

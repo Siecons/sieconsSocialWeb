@@ -23,11 +23,12 @@ CREATE TABLE `wp_sieconsyoast_primary_term` (
   PRIMARY KEY (`id`),
   KEY `post_taxonomy` (`post_id`,`taxonomy`),
   KEY `post_term` (`post_id`,`term_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconsyoast_primary_term` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsyoast_primary_term` DISABLE KEYS */;
+INSERT INTO `wp_sieconsyoast_primary_term` VALUES (1,242,1,'category','2020-06-22 21:42:03','2020-07-10 18:46:15',1);
 /*!40000 ALTER TABLE `wp_sieconsyoast_primary_term` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
