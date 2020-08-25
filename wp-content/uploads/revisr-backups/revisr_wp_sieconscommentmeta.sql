@@ -20,12 +20,11 @@ CREATE TABLE `wp_sieconscommentmeta` (
   PRIMARY KEY (`meta_id`),
   KEY `comment_id` (`comment_id`),
   KEY `meta_key` (`meta_key`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `wp_sieconscommentmeta` WRITE;
 /*!40000 ALTER TABLE `wp_sieconscommentmeta` DISABLE KEYS */;
-INSERT INTO `wp_sieconscommentmeta` VALUES (1,2,'wpdiscuz_votes','1'),(2,2,'wpdiscuz_votes_seperate','a:2:{s:4:\"like\";i:1;s:7:\"dislike\";i:0;}');
 /*!40000 ALTER TABLE `wp_sieconscommentmeta` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
