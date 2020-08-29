@@ -9,5 +9,5 @@ CREATE TABLE `wp_sieconsbp_activity_meta` (
   KEY `meta_key` (`meta_key`(191))
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 LOCK TABLES `wp_sieconsbp_activity_meta` WRITE;
-INSERT INTO `wp_sieconsbp_activity_meta` VALUES ('1','3','post_title','Comunidad'), ('2','3','post_url','http://localhost/siecons/?p=242'), ('3','3','post_comment_status','closed');
+INSERT INTO `wp_sieconsbp_activity_meta` VALUES ('1','3','post_title','Comunidad'), ('2','3','post_url','http://localhost/siecons?p=242'), ('3','3','post_comment_status','closed');
 UNLOCK TABLES;
