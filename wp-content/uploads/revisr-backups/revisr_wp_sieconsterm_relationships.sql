@@ -1,17 +1,4 @@
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 DROP TABLE IF EXISTS `wp_sieconsterm_relationships`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wp_sieconsterm_relationships` (
   `object_id` bigint(20) unsigned NOT NULL DEFAULT 0,
   `term_taxonomy_id` bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -19,20 +6,6 @@ CREATE TABLE `wp_sieconsterm_relationships` (
   PRIMARY KEY (`object_id`,`term_taxonomy_id`),
   KEY `term_taxonomy_id` (`term_taxonomy_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 LOCK TABLES `wp_sieconsterm_relationships` WRITE;
-/*!40000 ALTER TABLE `wp_sieconsterm_relationships` DISABLE KEYS */;
-INSERT INTO `wp_sieconsterm_relationships` VALUES (83,3,0),(84,3,0),(242,1,0),(245,3,0),(263,3,0),(285,3,0),(286,3,0),(420,4,0),(425,5,0),(426,6,0),(427,7,0),(428,8,0),(429,9,0),(430,10,0),(431,11,0),(432,12,0),(433,13,0),(434,14,0),(435,15,0),(436,16,0),(437,17,0),(438,18,0),(439,19,0),(515,20,0),(520,20,0),(522,20,0),(523,20,0),(605,3,0),(606,3,0),(607,3,0),(613,3,0),(616,3,0),(648,22,0),(648,23,0),(656,3,0),(657,22,0),(657,24,0),(660,24,0),(660,25,0),(662,23,0),(662,25,0),(674,26,0),(784,3,0);
-/*!40000 ALTER TABLE `wp_sieconsterm_relationships` ENABLE KEYS */;
+INSERT INTO `wp_sieconsterm_relationships` VALUES ('83','3','0'), ('84','3','0'), ('242','1','0'), ('245','3','0'), ('263','3','0'), ('285','3','0'), ('286','3','0'), ('420','4','0'), ('425','5','0'), ('426','6','0'), ('427','7','0'), ('428','8','0'), ('429','9','0'), ('430','10','0'), ('431','11','0'), ('432','12','0'), ('433','13','0'), ('434','14','0'), ('435','15','0'), ('436','16','0'), ('437','17','0'), ('438','18','0'), ('439','19','0'), ('515','20','0'), ('520','20','0'), ('522','20','0'), ('523','20','0'), ('605','3','0'), ('606','3','0'), ('607','3','0'), ('613','3','0'), ('616','3','0'), ('648','22','0'), ('648','23','0'), ('656','3','0'), ('657','22','0'), ('657','24','0'), ('660','24','0'), ('660','25','0'), ('662','23','0'), ('662','25','0'), ('674','26','0'), ('784','3','0');
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-

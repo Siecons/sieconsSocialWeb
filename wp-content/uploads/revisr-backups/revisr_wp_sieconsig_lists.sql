@@ -25,7 +25,7 @@ CREATE TABLE `wp_sieconsig_lists` (
 
 LOCK TABLES `wp_sieconsig_lists` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsig_lists` DISABLE KEYS */;
-INSERT INTO `wp_sieconsig_lists` VALUES (1,'test','Test','2020-08-23 20:11:28','0000-00-00 00:00:00','0000-00-00 00:00:00'),(2,'main','Main','2020-08-23 20:11:28','0000-00-00 00:00:00','0000-00-00 00:00:00');
+INSERT INTO `wp_sieconsig_lists` VALUES (1,'test','Test','2020-08-23 20:11:28',NULL,NULL),(2,'main','Main','2020-08-23 20:11:28',NULL,NULL);
 /*!40000 ALTER TABLE `wp_sieconsig_lists` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

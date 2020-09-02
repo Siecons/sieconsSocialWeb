@@ -28,7 +28,7 @@ CREATE TABLE `wp_sieconsig_lists_contacts` (
 
 LOCK TABLES `wp_sieconsig_lists_contacts` WRITE;
 /*!40000 ALTER TABLE `wp_sieconsig_lists_contacts` DISABLE KEYS */;
-INSERT INTO `wp_sieconsig_lists_contacts` VALUES (1,1,1,'subscribed',1,'2020-08-23 20:11:28','','0000-00-00 00:00:00',''),(2,2,1,'subscribed',1,'2020-08-23 20:11:28','','0000-00-00 00:00:00','');
+INSERT INTO `wp_sieconsig_lists_contacts` VALUES (1,1,1,'subscribed',1,'2020-08-23 20:11:28',NULL,NULL,NULL),(2,2,1,'subscribed',1,'2020-08-23 20:11:28',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `wp_sieconsig_lists_contacts` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
