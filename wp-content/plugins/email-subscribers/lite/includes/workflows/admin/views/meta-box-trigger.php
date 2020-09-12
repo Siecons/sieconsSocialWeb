@@ -15,10 +15,8 @@ foreach ( ES_Workflow_Triggers::get_all() as $trigger ) {
 	$trigger_list[ $trigger->get_group() ][ $trigger->get_name() ] = $trigger;
 }
 
-if ( ! ES()->is_premium() ) {
-
+if ( ! ES()->is_starter() ) {
 	$starter_trigger_list = array(
-
 		'Comment' => array(
 			'ig_es_comment_added' => __( 'Comment Added', 'email-subscribers' ),
 		),
@@ -36,7 +34,19 @@ if ( ! ES()->is_premium() ) {
 		),
 	);
 
-	$trigger_list = array_merge( $trigger_list, $starter_trigger_list );
+	$trigger_list = array_merge_recursive( $trigger_list, $starter_trigger_list );
+}
+
+if ( ! ES()->is_pro() ) {
+	$pro_trigger_list = array(
+		'Comment' => array(
+			'ig_es_wc_product_review_approved' => __( 'New Product Review Posted', 'email-subscribers' ),
+		),
+		'Order'   => array(
+			'ig_es_wc_order_refunded' => __( 'WooCommerce Order Refunded', 'email-subscribers' ),
+		),
+	);
+	$trigger_list = array_merge_recursive( $trigger_list, $pro_trigger_list );
 }
 ?>
 <table class="ig-es-table">
@@ -67,7 +77,7 @@ if ( ! ES()->is_premium() ) {
 				<?php endforeach; ?>
 			</select>
 			<?php if ( $current_trigger && $current_trigger->get_description() ) : ?>
-                <div class="js-trigger-description"><?php echo $current_trigger->get_description_html(); // phpcs:ignore ?></div>
+				<div class="js-trigger-description"><?php echo wp_kses_post( $current_trigger->get_description_html() ); ?></div>
 			<?php else : ?>
 				<div class="js-trigger-description"></div>
 			<?php endif; ?>

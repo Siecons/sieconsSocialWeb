@@ -108,17 +108,17 @@ class ScriptsLoader
 			}
 			self::$alreadyLoadedPopups[$popupId] = $events;
 			$events = json_encode($events);
-
+			$currentUseOptions = $popup->getOptions();
+			$extraContent = apply_filters('sgpbPopupExtraData', $popupId, $currentUseOptions);
 			$popupOptions = $this->getEncodedOptionsFromPopup($popup);
 			$popupOptions = apply_filters('sgpbLoadToFooterOptions', $popupOptions);
-
-			add_action('wp_footer', function() use ($popupId, $events, $popupOptions, $popupContent) {
+			add_action('wp_footer', function() use ($popupId, $events, $popupOptions, $popupContent, $extraContent) {
 				$footerPopupContent = '<div style="position:fixed;bottom: -999999999999999999999px;">
 							<div class="sg-popup-builder-content" id="sg-popup-content-wrapper-'.$popupId.'" data-id="'.esc_attr($popupId).'" data-events="'.esc_attr($events).'" data-options="'.esc_attr($popupOptions).'">
 								<div class="sgpb-popup-builder-content-'.esc_attr($popupId).' sgpb-popup-builder-content-html">'.$popupContent.'</div>
 							</div>
 						  </div>';
-
+				$footerPopupContent .= $extraContent;
 				echo $footerPopupContent;
 			});
 		}

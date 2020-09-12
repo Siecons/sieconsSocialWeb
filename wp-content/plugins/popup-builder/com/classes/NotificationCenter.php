@@ -4,7 +4,6 @@ use sgpb\AdminHelper;
 
 class SGPBNotificationCenter
 {
-	private $notificationsCount = 0;
 	private $requestUrl = SG_POPUP_BUILDER_NOTIFICATIONS_URL;
 	private $cronTimeout = 'daily';
 

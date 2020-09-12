@@ -1,6 +1,6 @@
 <?php
 /**
- * Action to send an email to provided email address.
+ * Abstract action class to send an email to provided email address.
  *
  * @author      Icegram
  * @since       4.5.3
@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Abstract class for send email workflow action
+ * 
  * @class ES_Action_Send_Email_Abstract
  * 
  * @since 4.5.3

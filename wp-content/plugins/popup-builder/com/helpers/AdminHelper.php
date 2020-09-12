@@ -100,30 +100,6 @@ class AdminHelper
 		return $popupTypeClassName;
 	}
 
-	public static function getPopupTargetParam($param)
-	{
-		global $SGPB_DATA_CONFIG_ARRAY;
-		$targetData = $SGPB_DATA_CONFIG_ARRAY['target'];
-
-		if (empty($targetData[$param])) {
-			return '';
-		}
-
-		return $targetData[$param];
-	}
-
-	public static function getPopupTargetParamType($param)
-	{
-		global $SGPB_DATA_CONFIG_ARRAY;
-		$targetDataTypes = $SGPB_DATA_CONFIG_ARRAY['target']['types'];
-
-		if (empty($targetDataTypes[$param])) {
-			return '';
-		}
-
-		return $targetDataTypes[$param];
-	}
-
 	public static function createSelectBox($data, $selectedValue, $attrs)
 	{
 		$attrString = '';
@@ -381,18 +357,12 @@ class AdminHelper
 	{
 		if ($popupId) {
 			if ($theme == 'sgpb-theme-1' || $theme == 'sgpb-theme-4' || $theme == 'sgpb-theme-5') {
-				if (isset($buttonPosition)) {
-					$buttonPosition = $buttonPosition;
-				}
-				else {
+				if (!isset($buttonPosition)) {
 					$buttonPosition = 'bottomRight';
 				}
 			}
 			else if ($theme == 'sgpb-theme-2' || $theme == 'sgpb-theme-3' || $theme == 'sgpb-theme-6') {
-				if (isset($buttonPosition)) {
-					$buttonPosition = $buttonPosition;
-				}
-				else {
+				if (!isset($buttonPosition)) {
 					$buttonPosition = 'topRight';
 				}
 			}
@@ -987,33 +957,6 @@ class AdminHelper
 		return $isActive;
 	}
 
-	public static function getMaxCountPopup()
-	{
-		$allPopups = SGPopup::getAllPopups();
-		$dontShowPopup = get_option('sgpbDontShowAskReviewBanner');
-		if ($dontShowPopup) {
-			return false;
-		}
-		$result = array();
-
-		if (empty($allPopups)) {
-			return false;
-		}
-		foreach ($allPopups as $popup) {
-			if (empty($popup)) {
-				continue;
-			}
-			$popupId = $popup->getId();
-			$count = SGPopup::getPopupOpeningCountById($popupId);
-
-			$title = $popup->getTitle();
-			$result['title'] = $title;
-			$result['count'] = $count;
-		}
-
-		return $result;
-	}
-
 	public static function supportBannerNotification()
 	{
 		$content = '<div class="sgpb-support-notification-wrapper sgpb-wrapper"><h4 class="sgpb-support-notification-title">'.__('Need some help?', SG_POPUP_TEXT_DOMAIN).'</h4>';
@@ -1289,13 +1232,6 @@ class AdminHelper
 		return $data;
 	}
 
-	public static function getBannerText()
-	{
-		$bannerText = get_option('sgpb-banner-remote-get');
-
-		return $bannerText;
-	}
-
 	public static function getRightMetaboxBannerText()
 	{
 		$bannerText = get_option('sgpb-metabox-banner-remote-get');
@@ -1377,47 +1313,13 @@ class AdminHelper
 		return get_post_meta($popupId, '_wpb_shortcodes_custom_css', true);
 	}
 
-	// countdown popup
-	public static function renderCountdownStyles($popupId = 0, $countdownBgColor, $countdownTextColor)
-	{
-		return  "<style type='text/css'>
-			.sgpb-counts-content.sgpb-flipclock-js-$popupId.flip-clock-wrapper ul li a div div.inn {
-				background-color: $countdownBgColor;
-				color: $countdownTextColor;
-			}
-			.sgpb-countdown-wrapper {
-				width: 446px;
-				height: 130px;
-				padding-top: 22px;
-				box-sizing: border-box;
-				margin: 0 auto;
-			}
-			.sgpb-counts-content {
-				display: inline-block;
-			}
-			.sgpb-counts-content > ul.flip {
-				width: 40px;
-				margin: 4px;
-			}
-		</style>";
-	}
-
-	// countdown popup scripts and params
-	public static function renderCountdownScript($id, $seconds, $type, $language, $timezone, $autoclose)
-	{
-		$params = array(
-			'id'        => $id,
-			'seconds'   => $seconds,
-			'type'      => $type,
-			'language'  => $language,
-			'timezone'  => $timezone,
-			'autoclose' => $autoclose
-		);
-
-		return $params;
-	}
-
-	// countdown popup, convert date to seconds
+	/**
+	 * countdown popup, convert date to seconds
+	 *
+	 * @param $dueDate
+	 * @param $timezone
+	 * @return false|int|string
+	 */
 	public static function dateToSeconds($dueDate, $timezone)
 	{
 		if (empty($timezone)) {
@@ -1451,42 +1353,6 @@ class AdminHelper
 		}
 
 		return $protocol;
-	}
-
-	public static function getCurrentUrl()
-	{
-		$protocol = self::getSiteProtocol();
-		$currentUrl = $protocol."://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-
-		return $currentUrl;
-	}
-
-	public static function isAppleMobileDevice()
-	{
-		$isIOS = false;
-
-		$useragent = @$_SERVER['HTTP_USER_AGENT'];
-		preg_match('/iPhone|Android|iPad|iPod|webOS/', $useragent, $matches);
-
-		$os = current($matches);
-		if ($os == 'iPad' || $os == 'iPhone' || $os == 'iPod') {
-			$isIOS = true;
-		}
-
-		return $isIOS;
-	}
-
-	public static function setPushToBottom($element = '')
-	{
-		$style = '<style type="text/css">';
-		$style .= "$element";
-		$style .= '{position: absolute !important;';
-		$style .= 'left: 0 !important;';
-		$style .= 'right: 0 !important;';
-		$style .= 'bottom: 2px !important;}';
-		$style .= '</style>';
-
-		return $style;
 	}
 
 	public static function findSubscribersByEmail($subscriberEmail = '', $list = 0)
@@ -1613,14 +1479,6 @@ class AdminHelper
 		}
 
 		return $hasInactiveExtensions;
-	}
-
-	public static function getSubscriberDataById($id)
-	{
-		global $wpdb;
-		$result = $wpdb->get_row('SELECT * FROM '.$wpdb->prefix.SGPB_SUBSCRIBERS_TABLE_NAME.' WHERE id='.$id, ARRAY_A);
-
-		return $result;
 	}
 
 	public static function getSubscriptionColumnsById($id)
@@ -2056,9 +1914,6 @@ class AdminHelper
 		// finally get the correct version number
 		$known = array('Version', $ub, 'other');
 		$pattern = '#(?<browser>'.join('|', $known).')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
-		if (!preg_match_all($pattern, $uAgent, $matches)) {
-			// we have no matching number just continue
-		}
 		// see how many we have
 		$i = count($matches['browser']);
 		//we will have two since we are not using 'other' argument yet

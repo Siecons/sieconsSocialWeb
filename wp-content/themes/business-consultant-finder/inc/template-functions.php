@@ -176,4 +176,23 @@ function business_consultant_finder_alowed_tags() {
 	
 }
 
+if( !function_exists('business_consultant_finder_elementor_editor_simplify') ){
+	
+	function business_consultant_finder_elementor_editor_simplify(){
+		
+		add_action( 'wp_head', function () {
+				echo '<style type="text/css">
+				#elementor-panel-category-pro-elements,
+				#elementor-panel-category-theme-elements,
+				#elementor-panel-category-woocommerce-elements,
+				#elementor-panel-get-pro-elements{
+					display:none!important;	
+				}
+				</style>';
+			}  );
+		
+	}
+	add_action( 'elementor/editor/init', 'business_consultant_finder_elementor_editor_simplify');
+
+}
 

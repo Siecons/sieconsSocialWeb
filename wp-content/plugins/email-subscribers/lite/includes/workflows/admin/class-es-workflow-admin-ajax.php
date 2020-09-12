@@ -104,8 +104,8 @@ class ES_Workflow_Admin_Ajax {
 		ES_Workflow_Admin::get_view(
 			'action-fields',
 			array(
-				'action'        => $action,
-				'action_number' => $action_number,
+				'workflow_action' => $action,
+				'action_number'   => $action_number,
 			)
 		);
 

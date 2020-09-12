@@ -1,3 +1,42 @@
+= 3.5.4 =
+* 09/02/2020
+* [NOTICE] PLEASE UPGRADE TO THIS VERSION.
+* [Bugfix] Workaround to prevent plugins / web servers from interfering with our security checks.
+
+= 3.5.3 =
+* 09/01/2020
+* [Bugfix] A tags in review content allow href/title/target/rel/style/class attributes.
+* [Bugfix] IMG tags in review content allow src/alt/width/height/style/class attributes.
+
+= 3.5.2 =
+* 08/31/2020
+* [Bugfix] Allow img tags with safe attributes to appear in review content.
+
+= 3.5.1 =
+* 08/29/2020
+* [Bugfix] Fixed PHP errors being displayed on frontend review pages when custom fields are enabled in plugin settings.
+
+= 2.5.1 =
+* 08/29/2020
+* [2.x] Fixes applied to prevent reported security issue. All users are encouraged to upgrade immediately.
+
+= 3.5.0 =
+* 08/26/2020
+* [Security] There have been reported attempts to inject code into your website / admin area, which this version aims to prevent. This should also prevent some spam submission attempts.
+
+= 3.4.5 =
+* 08/19/2020
+* [Bugfix] Allow safe html styling (bold, italic) and links (a tags with safe attributes) to appear in review content.
+* [Bugfix] Allow safe html styling (bold, italic) to appear in review meta field values, such as review title.
+
+= 3.4.4 =
+* 08/19/2020
+* [Bugfix] Fixed escaped HTML code appearing in review content instead of line breaks.
+
+= 3.4.3 =
+* 08/18/2020
+* [Security] Fixes applied to prevent reported security issue. All users are encouraged to upgrade immediately.
+
 = 3.4.2 =
 * 07/31/2020
 * [Update] Added compatibility with WordPress 5.5

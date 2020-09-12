@@ -27,7 +27,6 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 *
 		 * @since 4.2.1
 		 * @var $db
-		 *
 		 */
 		protected $db;
 
@@ -45,19 +44,16 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 
 		/**
 		 * Init Actions
+		 *
+		 * @since 4.2.0
+		 *
 		 */
 		public function init() {
-			/**
-			 * @since 4.2.0
-			 */
 			add_action( 'ig_es_contact_subscribe', array( &$this, 'subscribe' ), 10, 2 );
 			add_action( 'ig_es_message_sent', array( &$this, 'sent' ), 10, 3 );
 			add_action( 'ig_es_message_open', array( &$this, 'open' ), 10, 3 );
 			add_action( 'ig_es_message_click', array( &$this, 'click' ), 10, 5 );
 			add_action( 'ig_es_contact_unsubscribe', array( &$this, 'unsubscribe' ), 10, 4 );
-			//add_action( 'ig_es_message_bounce', array( &$this, 'bounce' ), 10, 3 );
-			//add_action( 'ig_es_subscriber_error', array( &$this, 'error' ), 10, 3 );
-			//add_action( 'ig_es_contact_list_unsubscribe', array( &$this, 'list_unsubscribe' ), 10, 4 );
 		}
 
 		/**
@@ -67,7 +63,7 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 */
 		public function get_fields( $fields = null, $where = null ) {
 
-			global $wpdb;
+			global $wpdb, $wpbd;
 
 			$fields = esc_sql( is_null( $fields ) ? '*' : ( is_array( $fields ) ? implode( ', ', $fields ) : $fields ) );
 
@@ -78,7 +74,7 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 				}
 			}
 
-			return $wpdb->get_results( $sql, ARRAY_A );
+			return $wpbd->get_results( $sql, ARRAY_A );
 
 		}
 
@@ -94,17 +90,20 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 */
 		private function add( $args, $explicit = true ) {
 
-			$args = wp_parse_args( $args, array(
-				'created_at'   => ig_es_get_current_gmt_timestamp(),
-				'updated_at'   => ig_es_get_current_gmt_timestamp(),
-				'count'        => 1,
-				'ip'           => '',
-				'country'      => '',
-				'browser'      => '',
-				'device'       => '',
-				'os'           => '',
-				'email_client' => '',
-			) );
+			$args = wp_parse_args(
+				$args,
+				array(
+					'created_at'   => ig_es_get_current_gmt_timestamp(),
+					'updated_at'   => ig_es_get_current_gmt_timestamp(),
+					'count'        => 1,
+					'ip'           => '',
+					'country'      => '',
+					'browser'      => '',
+					'device'       => '',
+					'os'           => '',
+					'email_client' => '',
+				)
+			);
 
 			return $this->db->add( $args, $explicit );
 		}
@@ -140,18 +139,20 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 * Track Subscribe Action
 		 *
 		 * @param $contact_id
-		 * @param array $list_ids
+		 * @param array      $list_ids
 		 *
 		 * @since 4.2.0
 		 */
 		public function subscribe( $contact_id, $list_ids = array() ) {
 			if ( is_array( $list_ids ) && count( $list_ids ) > 0 ) {
 				foreach ( $list_ids as $list_id ) {
-					$this->add_action( array(
-						'contact_id' => $contact_id,
-						'list_id'    => $list_id,
-						'type'       => IG_CONTACT_SUBSCRIBE
-					) );
+					$this->add_action(
+						array(
+							'contact_id' => $contact_id,
+							'list_id'    => $list_id,
+							'type'       => IG_CONTACT_SUBSCRIBE,
+						)
+					);
 				}
 			}
 
@@ -169,12 +170,14 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 * @since 4.2.0
 		 */
 		public function sent( $contact_id, $campaign_id = 0, $message_id = 0 ) {
-			return $this->add_action( array(
-				'contact_id'  => $contact_id,
-				'campaign_id' => $campaign_id,
-				'message_id'  => $message_id,
-				'type'        => IG_MESSAGE_SENT,
-			) );
+			return $this->add_action(
+				array(
+					'contact_id'  => $contact_id,
+					'campaign_id' => $campaign_id,
+					'message_id'  => $message_id,
+					'type'        => IG_MESSAGE_SENT,
+				)
+			);
 		}
 
 		/**
@@ -203,7 +206,7 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 				);
 
 				$device_info = $this->get_user_device_info();
-				$action_data = array_merge( $action_data, $device_info);
+				$action_data = array_merge( $action_data, $device_info );
 
 				return $this->add_action( $action_data, $explicit );
 			}
@@ -247,7 +250,7 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 * @param $contact_id
 		 * @param $message_id
 		 * @param $campaign_id
-		 * @param array $list_ids
+		 * @param array       $list_ids
 		 *
 		 * @since 4.2.0
 		 */
@@ -255,13 +258,15 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 			if ( is_array( $list_ids ) && count( $list_ids ) > 0 ) {
 				foreach ( $list_ids as $list_id ) {
 
-					$this->add_action( array(
-						'contact_id'  => $contact_id,
-						'message_id'  => $message_id,
-						'campaign_id' => $campaign_id,
-						'list_id'     => $list_id,
-						'type'        => IG_CONTACT_UNSUBSCRIBE,
-					) );
+					$this->add_action(
+						array(
+							'contact_id'  => $contact_id,
+							'message_id'  => $message_id,
+							'campaign_id' => $campaign_id,
+							'list_id'     => $list_id,
+							'type'        => IG_CONTACT_UNSUBSCRIBE,
+						)
+					);
 				}
 			}
 		}
@@ -272,16 +277,18 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 		 * @param $contact_id
 		 * @param $message_id
 		 * @param $campaign_id
-		 * @param bool $hard
+		 * @param bool        $hard
 		 *
 		 * @since 4.2.0
 		 */
 		public function bounce( $contact_id, $campaign_id, $hard = false ) {
-			$this->add_action( array(
-				'contact_id'  => $contact_id,
-				'campaign_id' => $campaign_id,
-				'type'        => $hard ? IG_MESSAGE_HARD_BOUNCE : IG_MESSAGE_SOFT_BOUNCE,
-			) );
+			$this->add_action(
+				array(
+					'contact_id'  => $contact_id,
+					'campaign_id' => $campaign_id,
+					'type'        => $hard ? IG_MESSAGE_HARD_BOUNCE : IG_MESSAGE_SOFT_BOUNCE,
+				)
+			);
 		}
 
 		/**
@@ -299,14 +306,13 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 
 			global $wpdb;
 
-			$ig_actions_table = IG_ACTIONS_TABLE;
-
-			$sql = "SELECT count(*) FROM $ig_actions_table WHERE contact_id = %d AND message_id = %d AND campaign_id = %d AND type = %d";
-
-			return $wpdb->get_var( $wpdb->prepare( $sql, $contact_id, $message_id, $campaign_id, IG_MESSAGE_SENT ) );
+			$sql = $wpdb->get_var( $wpdb->prepare( "SELECT count(*) FROM {$wpdb->prefix}ig_actions WHERE contact_id = %d AND message_id = %d AND campaign_id = %d AND type = %d ", $contact_id, $message_id, $campaign_id, IG_MESSAGE_SENT ) );
+			return $sql;
 		}
 
 		/**
+		 * Method to update campaign viewed/opened_at status 
+		 *
 		 * @param int $conact_id
 		 * @param int $campaign_id
 		 * @param int $message_id
@@ -323,33 +329,32 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 			}
 
 			$current_date = ig_get_current_date_time();
+			$sql = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}ig_sending_queue SET opened_at = %s, opened = %d WHERE contact_id = %d AND campaign_id = %d AND mailing_queue_id = %d", $current_date, 1, $conact_id, $campaign_id, $message_id ) );
 
-			$query = "UPDATE " . IG_SENDING_QUEUE_TABLE . " SET opened_at = %s, opened = %d WHERE contact_id = %d AND campaign_id = %d AND mailing_queue_id = %d";
-			$sql   = $wpdb->prepare( $query, $current_date, 1, $conact_id, $campaign_id, $message_id );
-
-			return $wpdb->query( $sql );
+			return $sql;
+			
 		}
 
 		/**
 		 * Method to get current device information
-		 * 
+		 *
 		 * @since 4.5.0
-		*/
+		 */
 		public function get_user_device_info() {
 
 			$browser     = new ES_Browser();
 			$device_info = array();
 
-			if( $browser->isMobile() ) {
+			if ( $browser->isMobile() ) {
 				$device_info['device'] = 'mobile';
-			} else if( $browser->isTablet() ) {
+			} elseif ( $browser->isTablet() ) {
 				$device_info['device'] = 'tablet';
 			} else {
 				$device_info['device'] = 'desktop';
 			}
 
 			$device_ip_address = ig_es_get_ip();
-			if( ! empty( $device_ip_address ) && 'UNKNOWN' !== $device_ip_address ) {
+			if ( ! empty( $device_ip_address ) && 'UNKNOWN' !== $device_ip_address ) {
 				$device_location_data   = ES_Geolocation::geolocate_ip( $device_ip_address );
 				$device_country_code    = ! empty( $device_location_data['country_code'] ) ? $device_location_data['country_code'] : '';
 				$device_info['country'] = $device_country_code;
@@ -358,11 +363,11 @@ if ( ! class_exists( 'ES_Actions' ) ) {
 				$device_info['country'] = '';
 			}
 
-			$device_info['ip'] 			 = $device_ip_address;
+			$device_info['ip']           = $device_ip_address;
 			$device_info['browser']      = $browser->getBrowser();
 			$device_info['os']           = $browser->getPlatform();
 			$device_info['email_client'] = $browser->get_email_client();
-			
+
 			return $device_info;
 		}
 	}

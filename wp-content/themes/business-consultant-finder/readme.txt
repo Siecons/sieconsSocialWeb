@@ -3,7 +3,7 @@ Contributors: athemeart
 Donate link: https://athemeart.com/downloads/business-consultant-finder/
 Requires at least: 4.0
 Tested up to: 5.2.4
-Stable tag: 2.2.7
+Stable tag: 2.2.8
 Requires PHP: 5.2.5
 License: GPLv3 
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -123,6 +123,8 @@ source: https://pxhere.com/en/photo/1583703
 
 == Upgrade Notice  ==
 
+= 2.2.8 =
+* Add function simplify function for elementor editor 
 
 = 2.2.3 =
 * Predic_Widget class exists checkign

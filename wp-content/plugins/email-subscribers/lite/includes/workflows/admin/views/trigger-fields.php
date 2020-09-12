@@ -8,7 +8,9 @@
  * @var $fill_fields (optional)
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 
 // default to false
@@ -31,12 +33,12 @@ if ( $fill_fields ) {
 $fields = $trigger->get_fields();
 ?>
 
-	<?php foreach( $fields as $field ):
+	<?php 
+	foreach ( $fields as $field ) :
 
 		if ( $fill_fields ) {
 			$value = $workflow->get_trigger_option( $field->get_name() );
-		}
-		else {
+		} else {
 			$value = null;
 		}
 		
@@ -44,14 +46,14 @@ $fields = $trigger->get_fields();
 		?>
 
 		<tr class="ig-es-table__row ig-es-trigger-option"
-		    data-name="name"
-		    data-type="<?php echo $field->get_type(); ?>"
-		    data-required="<?php echo (int) $field->get_required() ?> ">
+			data-name="name"
+			data-type="<?php echo esc_html( $field->get_type() ); ?>"
+			data-required="<?php echo (int) $field->get_required(); ?> ">
 
 			<td class="ig-es-table__col ig-es-table__col--label">
 
-				<?php echo $field->get_title(); ?>
-				<?php if ( $field->get_required() ): ?>
+				<?php echo esc_html( $field->get_title() ); ?>
+				<?php if ( $field->get_required() ) : ?>
 					<span class="required">*</span>
 				<?php endif; ?>
 
@@ -60,9 +62,9 @@ $fields = $trigger->get_fields();
 			<td class="ig-es-table__col ig-es-table__col--field">
 				<?php $field->render( $value ); ?>
 				
-				<?php if ( $field->get_description() ): ?>
+				<?php if ( $field->get_description() ) : ?>
 					<p class="ig-es-field-description">
-					<?php echo $field->get_description(); ?>
+					<?php echo esc_html( $field->get_description() ); ?>
 					</p>
 				<?php endif; ?>
 			</td>

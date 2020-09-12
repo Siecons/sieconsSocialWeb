@@ -117,10 +117,10 @@ wpcr3.submit = function(e) {
 	
 	submit.addClass('wpcr3_disabled');
 	
-	var postid = parent.attr("data-postid");
-	div2.find('.wpcr3_checkid').remove();
-	div2.append('<input type="hidden" name="wpcr3_checkid" class="wpcr3_checkid" value="'+postid+'" />');
-	div2.append('<input type="hidden" name="wpcr3_ajaxAct" class="wpcr3_checkid" value="form" />');
+	var postid = parseInt(parent.attr("data-postid"), 10);
+	div2.find('.wpcr3_checkid2').remove();
+	div2.append('<input type="hidden" name="wpcr3_checkid2" class="wpcr3_checkid" value="'+((postid*42)-postid)+'" />');
+	div2.append('<input type="hidden" name="wpcr3_ajaxAct2" class="wpcr3_checkid" value="form" />');
 	fields = div2.find('input,textarea');
 	
 	var ajaxData = {};
@@ -197,7 +197,7 @@ wpcr3.init = function() {
 		var pageOpts = pager.attr("data-page-opts");
 		var on_postid = parent.attr("data-on-postid");
 		
-		var ajaxData = { ajaxAct : "pager", on_postid : on_postid, page : page, pageOpts : pageOpts };
+		var ajaxData = { ajaxAct2 : "pager", on_postid : on_postid, page : page, pageOpts : pageOpts };
 		wpcr3.ajaxPost(parent, ajaxData, function(err, rtn) {
 			if (err) { return; }
 			

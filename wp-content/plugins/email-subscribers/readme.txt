@@ -4,9 +4,9 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: https://www.icegram.com/
 Tags: email marketing, subscription, autoresponder, post notification, welcome email
 Requires at least: 3.9
-Tested up to: 5.4.2
+Tested up to: 5.5.1
 Requires PHP: 5.6
-Stable tag: 4.5.3
+Stable tag: 4.5.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses
 
@@ -303,6 +303,25 @@ Refer [here](https://www.icegram.com/documentation/es-faq/).
 
 
 == Changelog ==
+
+**4.5.6 (09.09.2020)**
+
+* Update: Improved UI
+* Update: Improved securities
+* Update: Improved Import contacts functionality
+* Update: Now, pagination also works with search parameter
+
+**4.5.5 (02.09.2020)**
+
+* Update: Improve onboarding
+* New: Sync name field value from WP Form [PRO]
+* Fix: WP Form workflow related issue [PRO]
+
+**4.5.4 (27.08.2020)**
+
+* Update: Compatible with WordPress 5.5
+* Fix: SMTP mailer warning with WordPress 5.5
+* Fix: Import Contact issue
 
 **4.5.3 (30.07.2020)**
 

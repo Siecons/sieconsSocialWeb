@@ -3,6 +3,7 @@
 	use sgpb\SubscriptionPopup;
 	use sgpb\AdminHelper;
 	$adminEmail = get_option('admin_email');
+	$newsletterSavedOptions = get_option('SGPB_NEWSLETTER_DATA');
 	$subscriptionIdTitle = SubscriptionPopup::getAllSubscriptionForms();
 
 	$subscriptionSelectBox = AdminHelper::createSelectBox(
@@ -74,7 +75,7 @@
 										<?php _e('Email\'s subject', SG_POPUP_TEXT_DOMAIN); ?>
 									</label>
 									<div class="col-md-6">
-										<input type="email" id="sgpb-newsletter-subject" class="sgpb-newsletter-subject form-control input-sm" value="<?php _e('Your subject here', SG_POPUP_TEXT_DOMAIN); ?>">
+										<input type="email" id="sgpb-newsletter-subject" class="sgpb-newsletter-subject form-control input-sm" value="<?php echo (empty($newsletterSavedOptions['newsletterSubject'])) ? _e('Your subject here', SG_POPUP_TEXT_DOMAIN) : $newsletterSavedOptions['newsletterSubject']; ?>">
 									</div>
 								</div>
 								<div class="row form-group">
@@ -86,11 +87,14 @@
 									<div class="col-md-12">
 										<?php
 											$editorId = 'sgpb-newsletter-text';
-											$content = '<p>Hi [First name] [Last name],</p>
-											<p>Super excited to have you on board, we know you’ll just love us.</p>
-											<p>Sincerely,</p>
-											<p>[Blog name]</p>
-											<p>[Unsubscribe title="Unsubscribe"]</p>';
+											$content = $newsletterSavedOptions['messageBody'];
+											if (empty($content)) {
+												$content = '<p>Hi [First name] [Last name],</p>
+												<p>Super excited to have you on board, we know you’ll just love us.</p>
+												<p>Sincerely,</p>
+												<p>[Blog name]</p>
+												<p>[Unsubscribe title="Unsubscribe"]</p>';
+											}
 											$settings = array(
 												'wpautop' => false,
 												'tinymce' => array(
@@ -108,7 +112,7 @@
 										<input class="sgpb-newlsetter-test-emails form-control input-sm" type="text" name="sgpb-newlsetter-test-emails">
 									</div>
 									<div class="col-md-6">
-										<input type="submit" class="btn btn-sm btn-light js-send-newsletter" data-send-type="test" value="<?php _e('Test send', SG_POPUP_TEXT_DOMAIN)?>">
+										<input type="submit" class="btn btn-sm btn-light js-send-newsletter" data-send-type="test" value="<?php _e('Send a Test', SG_POPUP_TEXT_DOMAIN)?>">
 										<img src="<?php echo SG_POPUP_IMG_URL.'ajaxSpinner.gif'; ?>" width="20px" class="sgpb-hide sgpb-js-newsletter-spinner">
 									</div>
 									<div class="col-md-3">

@@ -42,19 +42,19 @@ class ES_WP_Editor extends ES_Field {
 		$value = ES_Clean::editor_content( $value );
 
 		// If it is an ajax request then load wp editor using js library.
-		if ( is_ajax() ) {
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			?>
 			<textarea name="<?php echo esc_attr( $this->get_full_name() ); ?>" id="<?php echo esc_attr( $id ); ?>">
 			</textarea>
 			<?php
 			$this->ajax_init( $id );
 		} else {
-			// If it is not an ajax request then load wp editor using Wordpress wp_editor PHP function.
-			wp_editor( $value, $id, [
+			// If it is not an ajax request then load wp editor using WordPress wp_editor PHP function.
+			wp_editor( $value, $id, array(
 				'textarea_name' => $this->get_full_name(),
 				'tinymce'       => true, // default to visual
 				'quicktags'     => true,
-			]);
+			));
 		}
 	}
 

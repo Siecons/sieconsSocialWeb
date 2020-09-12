@@ -120,7 +120,7 @@ class ES_DB_Workflows extends ES_DB {
 	 */
 	public function get_workflows( $query_args = array(), $output = ARRAY_A, $do_count_only = false ) {
 
-		global $wpdb;
+		global $wpdb, $wpbd;
 		if ( $do_count_only ) {
 			$sql = 'SELECT count(*) as total FROM ' . IG_WORKFLOWS_TABLE;
 		} else {
@@ -172,7 +172,7 @@ class ES_DB_Workflows extends ES_DB {
 			$sql .= implode( ' AND ', $query );
 
 			if ( count( $args ) > 0 ) {
-				$sql = $wpdb->prepare( $sql, $args ); // phpcs:ignore
+				$sql = $wpbd->prepare( $sql, $args ); // phpcs:ignore
 			}
 		}
 
@@ -203,9 +203,9 @@ class ES_DB_Workflows extends ES_DB {
 				}
 			}
 
-			$result = $wpdb->get_results( $sql, $output ); // phpcs:ignore
+			$result = $wpbd->get_results( $sql, $output ); // phpcs:ignore
 		} else {
-			$result = $wpdb->get_var( $sql ); // phpcs:ignore
+			$result = $wpbd->get_var( $sql ); // phpcs:ignore
 		}
 
 		return $result;
@@ -332,23 +332,19 @@ class ES_DB_Workflows extends ES_DB {
 			return $updated;
 		}
 
-		$id_str       = '';
 		$workflow_ids = esc_sql( $workflow_ids );
-		
+
+		// Variable to hold workflow ids seperated by commas.
+		$workflow_ids_str = '';
 		if ( is_array( $workflow_ids ) && count( $workflow_ids ) > 0 ) {
-			$id_str = implode( ',', $workflow_ids );
+			$workflow_ids_str = implode( ',', $workflow_ids );
 		} elseif ( is_numeric( $workflow_ids ) ) {
-			$id_str = $workflow_ids;
+			$workflow_ids_str = $workflow_ids;
 		}
 
-		if ( ! empty( $id_str ) ) {
-			$sql = 'UPDATE ' . IG_WORKFLOWS_TABLE . ' SET status = %d';
-
-			$sql .= " WHERE id IN ($id_str)";
-
-			$sql = $wpdb->prepare( $sql, $status ); // phpcs:ignore
-
-			$updated = $wpdb->query( $sql ); // phpcs:ignore
+		if ( ! empty( $workflow_ids_str ) ) {
+			// Required in WooCommerce Coding Standards when preparing dynamic query.
+			$updated = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}ig_workflows SET status = %d WHERE FIND_IN_SET(id, %s)", $status, $workflow_ids_str ) );
 		}
 
 		return $updated;

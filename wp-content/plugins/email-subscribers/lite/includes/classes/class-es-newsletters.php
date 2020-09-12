@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ES_Newsletters {
 
 	// class instance
-	static $instance;
+	public static $instance;
 
 	// class constructor
 	public function __construct() {
@@ -38,7 +38,7 @@ class ES_Newsletters {
 		add_filter( 'ig_es_broadcast_data', array( $this, 'add_tracking_fields_data' ) );
 
 		if ( ! ES()->is_pro() ) {
-			//Add scheduler data
+			// Add scheduler data
 			add_filter( 'ig_es_broadcast_data', array( &$this, 'es_add_broadcast_scheduler_data' ), 10, 2 );
 		}
 
@@ -58,38 +58,45 @@ class ES_Newsletters {
 	public function process_broadcast_submission() {
 
 		global $wpdb;
+		
 		$submitted      = ig_es_get_request_data( 'ig_es_broadcast_submitted' );
 		$broadcast_data = ig_es_get_request_data( 'broadcast_data', array(), false );
-
+		
 		if ( 'submitted' === $submitted ) {
-			$list_id     = ! empty( $broadcast_data['list_ids'] ) ? $broadcast_data['list_ids'] : '';
-			$template_id = ! empty( $broadcast_data['template_id'] ) ? $broadcast_data['template_id'] : '';
-			$subject     = ! empty( $broadcast_data['subject'] ) ? $broadcast_data['subject'] : '';
+			$broadcast_nonce = ig_es_get_request_data( 'ig_es_broadcast_nonce' );
+			// Verify nonce.
+			if ( wp_verify_nonce( $broadcast_nonce, 'ig-es-broadcast-nonce' ) ) {
+				$list_id     = ! empty( $broadcast_data['list_ids'] ) ? $broadcast_data['list_ids'] : '';
+				$template_id = ! empty( $broadcast_data['template_id'] ) ? $broadcast_data['template_id'] : '';
+				$subject     = ! empty( $broadcast_data['subject'] ) ? $broadcast_data['subject'] : '';
 
-			// Check if user has added required data for creating broadcast.
-			if ( ! empty( $broadcast_data['subject'] ) && ! empty( $broadcast_data['body'] ) && ! empty( $list_id ) && ! empty( $subject ) ) {
-				$broadcast_data['base_template_id'] = $template_id;
-				$broadcast_data['list_ids']         = $list_id;
-				$broadcast_data['status']           = IG_ES_CAMPAIGN_STATUS_SCHEDULED;
-				$meta                               = ! empty( $broadcast_data['meta'] ) ? $broadcast_data['meta'] : array();
-				$meta['scheduling_option']          = ! empty( $broadcast_data['scheduling_option'] ) ? $broadcast_data['scheduling_option'] : 'schedule_now';
-				$meta['es_schedule_date']           = ! empty( $broadcast_data['es_schedule_date'] ) ? $broadcast_data['es_schedule_date'] : '';
-				$meta['es_schedule_time']           = ! empty( $broadcast_data['es_schedule_time'] ) ? $broadcast_data['es_schedule_time'] : '';
-				$meta['pre_header']                 = ! empty( $broadcast_data['pre_header'] ) ? $broadcast_data['pre_header'] : '';
-				$broadcast_data['meta']             = maybe_serialize( $meta );
+				// Check if user has added required data for creating broadcast.
+				if ( ! empty( $broadcast_data['subject'] ) && ! empty( $broadcast_data['body'] ) && ! empty( $list_id ) && ! empty( $subject ) ) {
+					$broadcast_data['base_template_id'] = $template_id;
+					$broadcast_data['list_ids']         = $list_id;
+					$broadcast_data['status']           = IG_ES_CAMPAIGN_STATUS_SCHEDULED;
+					$meta                               = ! empty( $broadcast_data['meta'] ) ? $broadcast_data['meta'] : array();
+					$meta['scheduling_option']          = ! empty( $broadcast_data['scheduling_option'] ) ? $broadcast_data['scheduling_option'] : 'schedule_now';
+					$meta['es_schedule_date']           = ! empty( $broadcast_data['es_schedule_date'] ) ? $broadcast_data['es_schedule_date'] : '';
+					$meta['es_schedule_time']           = ! empty( $broadcast_data['es_schedule_time'] ) ? $broadcast_data['es_schedule_time'] : '';
+					$meta['pre_header']                 = ! empty( $broadcast_data['pre_header'] ) ? $broadcast_data['pre_header'] : '';
+					$broadcast_data['meta']             = maybe_serialize( $meta );
 
-				self::es_send_email_callback( $broadcast_data );
+					self::es_send_email_callback( $broadcast_data );
 
-				if ( 'schedule_now' === $meta['scheduling_option'] ) {
-					ES()->init_action_scheduler_queue_runner( 'ig_es_trigger_broadcast_processing' );
+					if ( 'schedule_now' === $meta['scheduling_option'] ) {
+						ES()->init_action_scheduler_queue_runner( 'ig_es_trigger_broadcast_processing' );
+					}
+
+					$campaign_url = admin_url( 'admin.php?page=es_campaigns&action=broadcast_created' );
+
+					wp_safe_redirect( $campaign_url );
+					exit();
 				}
-
-				$campaign_url = admin_url( 'admin.php?page=es_campaigns&action=broadcast_created' );
-
-				wp_safe_redirect( $campaign_url );
-				exit();
+			} else {
+				$message = __( 'Sorry, you are not allowed to add/edit broadcast.', 'email-subscribers' );
+				ES_Common::show_message( $message, 'error' );
 			}
-
 		}
 	}
 
@@ -117,7 +124,6 @@ class ES_Newsletters {
 					'type'    => 'error',
 				);
 			} elseif ( empty( $broadcast_data['body'] ) ) {
-				// if ( empty( $template_id) ) {
 				$message      = __( 'Please add message body or select template', 'email-subscribers' );
 				$message_data = array(
 					'message' => $message,
@@ -140,10 +146,11 @@ class ES_Newsletters {
 
 		if ( ! empty( $broadcast_id ) ) {
 
-			$broadcast_query	 = $wpdb->prepare( "SELECT * FROM " . IG_CAMPAIGNS_TABLE . " WHERE id = %d LIMIT 0, 1", $broadcast_id );
-			$broadcasts     	 = $wpdb->get_results( $broadcast_query, ARRAY_A );
-			$broadcast      	 = array_shift( $broadcasts );
-			$broadcast_data  	 = array(
+			$broadcast_query = $wpdb->prepare( ' id = %d LIMIT 0, 1', $broadcast_id );
+			$broadcasts      = ES()->campaigns_db->get_by_conditions( $broadcast_query );
+
+			$broadcast      = array_shift( $broadcasts );
+			$broadcast_data = array(
 				'id'          	 => $broadcast['id'],
 				'name'        	 => $broadcast['name'],
 				'subject'     	 => $broadcast['subject'],
@@ -193,7 +200,7 @@ class ES_Newsletters {
 			$broadcast_allowed_edit_statuses = array(
 				IG_ES_CAMPAIGN_STATUS_ACTIVE,
 				IG_ES_CAMPAIGN_STATUS_IN_ACTIVE,
-				IG_ES_CAMPAIGN_STATUS_SCHEDULED
+				IG_ES_CAMPAIGN_STATUS_SCHEDULED,
 			);
 
 			if ( ! in_array( $broadcast_status, $broadcast_allowed_edit_statuses ) ) {
@@ -215,12 +222,15 @@ class ES_Newsletters {
 			}
 		}
 
-		$select_list_attr  = ES()->is_pro() ? 'multiple="multiple"' : '';
-		$select_list_name  = ES()->is_pro() ? 'broadcast_data[list_ids][]' : 'broadcast_data[list_ids]';
-		$select_list_class = ES()->is_pro() ? 'ig-es-form-multiselect' : 'form-select';
+		// Allow multiselect for lists field in the pro version by changing list field's class,name and adding multiple attribute.
+		$select_list_attr  	= ES()->is_pro() ? 'multiple="multiple"' : '';
+		$select_list_name  	= ES()->is_pro() ? 'broadcast_data[list_ids][]' : 'broadcast_data[list_ids]';
+		$select_list_class 	= ES()->is_pro() ? 'ig-es-form-multiselect' : 'form-select';
+
+		$allowedtags 		= ig_es_allowed_html_tags_in_esc();
 		?>
 
-        <div class="font-sans wrap">
+		<div class="font-sans wrap">
 			<?php
 			if ( ! empty( $message_data ) ) {
 				$message = $message_data['message'];
@@ -228,215 +238,222 @@ class ES_Newsletters {
 				ES_Common::show_message( $message, $type );
 			}
 			?>
-            <form action="#" method="POST" id="broadcast_form">
-                <input type="hidden" id="broadcast_id" name="broadcast_data[id]" value="<?php echo esc_attr( $broadcast_id ); ?>"/>
-                <input type="hidden" id="broadcast_status" name="broadcast_data[status]" value="<?php echo esc_attr( $broadcast_status ); ?>"/>
-                <fieldset class="block es_fieldset">
-                    <div class="mx-auto wp-heading-inline max-w-7xl">
-                        <header class="mx-auto max-w-7xl">
-                            <div class="pb-2 md:flex md:items-center md:justify-between">
-                                <div class="flex md:3/5 lg:w-7/12 xl:w-3/5">
-                                    <div class="flex min-w-0 md:w-3/5 lg:w-1/2">
-                                        <span class="pt-1.5 text-base font-normal leading-7 sm:leading-9 sm:truncate text-indigo-600"><a href="admin.php?page=es_campaigns"><?php echo esc_html__( 'Campaigns', 'email-subscribers' ); ?></a></span>
-                                        <svg class="w-6 h-6 mx-1 mt-4" fill="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                    fill-rule="evenodd"
-                                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                    clip-rule="evenodd"
-                                            ></path>
-                                        </svg>
+			<form action="#" method="POST" id="broadcast_form">
+				<input type="hidden" id="broadcast_id" name="broadcast_data[id]" value="<?php echo esc_attr( $broadcast_id ); ?>"/>
+				<input type="hidden" id="broadcast_status" name="broadcast_data[status]" value="<?php echo esc_attr( $broadcast_status ); ?>"/>
+				<?php wp_nonce_field( 'ig-es-broadcast-nonce', 'ig_es_broadcast_nonce' ); ?>
+				<fieldset class="block es_fieldset">
+					<div class="mx-auto wp-heading-inline max-w-7xl">
+						<header class="mx-auto max-w-7xl">
+							<div class="pb-2 md:flex md:items-center md:justify-between">
+								<div class="flex md:3/5 lg:w-7/12 xl:w-3/5">
+									<div class="flex min-w-0 md:w-3/5 lg:w-1/2">
+										<span class="pt-1.5 text-base font-normal leading-7 sm:leading-9 sm:truncate text-indigo-600"><a href="admin.php?page=es_campaigns"><?php echo esc_html__( 'Campaigns', 'email-subscribers' ); ?></a></span>
+										<svg class="w-6 h-6 mx-1 mt-4" fill="currentColor" viewBox="0 0 24 24">
+											<path
+													fill-rule="evenodd"
+													d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+													clip-rule="evenodd"
+											></path>
+										</svg>
 
-                                        <h2 class="pt-1 text-2xl font-medium leading-7 text-gray-900 sm:leading-9 sm:truncate"> <?php echo esc_html__( 'Broadcast', 'email-subscribers' ); ?>
-                                        </h2>
-                                    </div>
-                                    <div class="flex pt-3  md:-mr-8 lg:-mr-16 xl:mr-0 md:ml-8 lg:ml-16 xl:ml-20">
-                                        <ul id="progressbar" class="overflow-hidden">
-                                            <li id="content_menu" class="relative float-left px-1 pb-2 text-center list-none cursor-pointer active ">
-                                                <span class="mt-1 text-base font-medium tracking-wide text-gray-400 active"><?php echo esc_html__( 'Content', 'email-subscribers' ); ?></span>
-                                            </li>
-                                            <li id="summary_menu" class="relative float-left px-1 pb-2 ml-5 text-center list-none cursor-pointer hover:border-2 ">
-                                                <span class="mt-1 text-base font-medium tracking-wide text-gray-400"><?php echo esc_html__( 'Summary', 'email-subscribers' ); ?></span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="flex mt-4 md:mt-0 md:ml-2 xl:ml-4">
+										<h2 class="pt-1 text-2xl font-medium leading-7 text-gray-900 sm:leading-9 sm:truncate"> <?php echo esc_html__( 'Broadcast', 'email-subscribers' ); ?>
+										</h2>
+									</div>
+									<div class="flex pt-3  md:-mr-8 lg:-mr-16 xl:mr-0 md:ml-8 lg:ml-16 xl:ml-20">
+										<ul id="progressbar" class="overflow-hidden">
+											<li id="content_menu" class="relative float-left px-1 pb-2 text-center list-none cursor-pointer active ">
+												<span class="mt-1 text-base font-medium tracking-wide text-gray-400 active"><?php echo esc_html__( 'Content', 'email-subscribers' ); ?></span>
+											</li>
+											<li id="summary_menu" class="relative float-left px-1 pb-2 ml-5 text-center list-none cursor-pointer hover:border-2 ">
+												<span class="mt-1 text-base font-medium tracking-wide text-gray-400"><?php echo esc_html__( 'Summary', 'email-subscribers' ); ?></span>
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="flex mt-4 md:mt-0 md:ml-2 xl:ml-4">
 
-                                    <div id="broadcast_button" class="inline-block text-left ">
-                                        <button type="button"
-                                                class="inline-flex justify-center w-full py-2 text-sm font-medium leading-5 text-indigo-600 transition duration-150 ease-in-out border border-indigo-500 rounded-md cursor-pointer select-none next_btn hover:text-indigo-500 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg hover:border-indigo-600 md:px-2 lg:px-3 xl:px-4"><?php echo esc_html__( 'Next',
-												'email-subscribers' ); ?>
-                                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 20 20" class="w-3 h-3 my-1 ml-2 -mr-1 text-indigo-600">
-                                                <path d="M9 5l7 7-7 7"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
+									<div id="broadcast_button" class="inline-block text-left ">
+										<button type="button"
+												class="inline-flex justify-center w-full py-2 text-sm font-medium leading-5 text-indigo-600 transition duration-150 ease-in-out border border-indigo-500 rounded-md cursor-pointer select-none next_btn hover:text-indigo-500 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg hover:border-indigo-600 md:px-2 lg:px-3 xl:px-4">
+												<?php
+												echo esc_html__( 'Next', 'email-subscribers' );
+												?>
+											<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 20 20" class="w-3 h-3 my-1 ml-2 -mr-1 text-indigo-600">
+												<path d="M9 5l7 7-7 7"></path>
+											</svg>
+										</button>
+									</div>
 
-                                    <div id="broadcast_button1" class="flex hidden mt-4 md:mt-0 md:ml-2 xl:ml-4">
+									<div id="broadcast_button1" class="flex hidden mt-4 md:mt-0 md:ml-2 xl:ml-4">
 								<span>
 									<div class="relative inline-block text-left">
 										<span>
 											<button type="button"
-                                                    class="inline-flex justify-center w-full py-2 text-sm font-medium leading-5 text-indigo-600 transition duration-150 ease-in-out border border-indigo-500 rounded-md cursor-pointer select-none pre_btn md:px-1 lg:px-3 xl:px-4 hover:text-indigo-500 hover:border-indigo-600 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg ">
+													class="inline-flex justify-center w-full py-2 text-sm font-medium leading-5 text-indigo-600 transition duration-150 ease-in-out border border-indigo-500 rounded-md cursor-pointer select-none pre_btn md:px-1 lg:px-3 xl:px-4 hover:text-indigo-500 hover:border-indigo-600 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg ">
 											<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" viewBox="0 0 20 20" class="w-3 h-3 my-1 mr-1"><path d="M15 19l-7-7 7-7"></path></svg><?php echo esc_html__( 'Previous', 'email-subscribers' ); ?>
 										</button>
 									</span>
 								</div>
 							</span>
-                                    </div>
+									</div>
 
-                                    <span class="md:ml-2 xl:ml-3">
+									<span class="md:ml-2 xl:ml-3">
 							<button type="button" class="inline-flex items-center w-full py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md ig_es_draft_broadcast md:px-2 lg:px-3 xl:px-4 hover:bg-gray-50 focus:outline-none focus:shadow-outline focus:border-blue-300">
 								<?php echo esc_html__( 'Save Draft', 'email-subscribers' ); ?>
 							</button>
 						</span>
 
-                                    <span id="broadcast_button2" class="hidden md:ml-2 xl:ml-3">
+									<span id="broadcast_button2" class="hidden md:ml-2 xl:ml-3">
 							<div class="relative inline-block text-left">
 								<span>
 									<?php
 									// If broadcast is sent or being sent then don't allow scheduling to conflicts.
 									if ( ! $is_broadcast_processing ) {
-									?>
+										?>
 										<button type="submit" id="ig_es_broadcast_submitted" name="ig_es_broadcast_submitted" class="inline-flex justify-center py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md md:px-2 lg:px-3 xl:px-4 hover:bg-indigo-500 hover:text-white"
-                                                value="submitted">
-										<?php if ( ES()->is_pro() ) {
+												value="submitted">
+										<?php 
+										if ( ES()->is_pro() ) {
 											echo esc_html__( 'Schedule', 'email-subscribers' );
 										} else {
 											echo esc_html__( 'Send', 'email-subscribers' );
 										}
-										}
-										?>
+									}
+									?>
 								</button>
 
 							</span>
 						</div>
 					</span>
+								</div>
+							</div>
+						</header>
+					</div>
+					<div class="mx-auto max-w-7xl">
+						<hr class="wp-header-end">
+					</div>
+					<div class="mx-auto my-4 es_broadcast_first max-w-7xl">
+						<div>
+							<div class=" bg-white rounded-lg shadow-md md:flex">
+								<div class="broadcast_main_content py-4 pl-2">
+									<div class="block px-4 py-2">
+										<label for="ig_es_broadcast_subject" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Subject', 'email-subscribers' ); ?></label>
+										<input id="ig_es_broadcast_subject" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[subject]" value="<?php echo esc_attr( $broadcast_subject ); ?>"/>
+									</div>
+									<div class="block px-4 py-2">
+										<label for="from_name" class="text-sm font-medium leading-5 text-gray-700 "><?php echo esc_html__( 'From Name', 'email-subscribers' ); ?></label>
+										<input id="from_name" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[from_name]" value="<?php echo esc_attr( $broadcast_from_name ); ?>"/>
+									</div>
+									<div class="block px-4 py-2">
+										<label for="from_email" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'From Email', 'email-subscribers' ); ?></label>
+										<input id="from_email" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[from_email]" value="<?php echo esc_attr( $broadcast_email ); ?>"/>
+									</div>
+									 <div class="block px-4 py-2">
+										<label for="reply_to" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Reply To', 'email-subscribers' ); ?></label>
+										<input id="reply_to" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[reply_to_email]" value="<?php echo esc_attr( $broadcast_reply_to ); ?>"/>
+									</div>
 
-                                </div>
-                            </div>
-                        </header>
-                    </div>
-                    <div class="mx-auto max-w-7xl">
-                        <hr class="wp-header-end">
-                    </div>
-                    <div class="mx-auto my-4 es_broadcast_first max-w-7xl">
-                        <div>
-                            <div class=" bg-white rounded-lg shadow-md md:flex">
-                                <div class="broadcast_main_content py-4 pl-2">
-                                    <div class="block px-4 py-2">
-                                        <label for="ig_es_broadcast_subject" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Subject', 'email-subscribers' ); ?></label>
-                                        <input id="ig_es_broadcast_subject" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[subject]" value="<?php echo esc_attr( $broadcast_subject ); ?>"/>
-                                    </div>
-                                    <div class="block px-4 py-2">
-                                        <label for="from_name" class="text-sm font-medium leading-5 text-gray-700 "><?php echo esc_html__( 'From Name', 'email-subscribers' ); ?></label>
-                                        <input id="from_name" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[from_name]" value="<?php echo esc_attr( $broadcast_from_name ); ?>"/>
-                                    </div>
-                                    <div class="block px-4 py-2">
-                                        <label for="from_email" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'From Email', 'email-subscribers' ); ?></label>
-                                        <input id="from_email" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[from_email]" value="<?php echo esc_attr( $broadcast_email ); ?>"/>
-                                    </div>
-                                     <div class="block px-4 py-2">
-                                        <label for="reply_to" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Reply To', 'email-subscribers' ); ?></label>
-                                        <input id="reply_to" class="block w-full mt-1 text-sm leading-5 border-gray-400 rounded-md shadow-sm form-input" name="broadcast_data[reply_to_email]" value="<?php echo esc_attr( $broadcast_reply_to ); ?>"/>
-                                    </div>
-
-                                    <div class="w-full px-4 pt-1 pb-2 mt-1">
-                                        <label for="message" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Message', 'email-subscribers' ); ?></label>
+									<div class="w-full px-4 pt-1 pb-2 mt-1">
+										<label for="message" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Message', 'email-subscribers' ); ?></label>
 										<?php
 										$body        = ! empty( $broadcast_data['body'] ) ? $broadcast_data['body'] : '';
 										$editor_args = array(
 											'textarea_name' => 'broadcast_data[body]',
 											'textarea_rows' => 40,
 											'media_buttons' => true,
-											'tinymce'       => true,
-											'quicktags'     => true,
-											'editor_class'  => 'wp-editor-boradcast',
+											'tinymce'      => true,
+											'quicktags'    => true,
+											'editor_class' => 'wp-editor-boradcast',
 										);
 										wp_editor( $body, 'edit-es-boradcast-body', $editor_args );
 										?>
-                                    </div>
+									</div>
 									<?php do_action( 'ig_es_after_broadcast_left_pan_settings', $broadcast_data ); ?>
-                                </div>
-                                <div class="broadcast_side_content ml-2 bg-gray-100 rounded-r-lg">
-                                    <div class="block pt-6 mx-4 pb-3">
-                                        <label for="template" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Design Template', 'email-subscribers' ); ?></label>
-                                        <select class="block w-full h-8 mt-1 text-sm rounded-md cursor-pointer h-9 form-select" name="broadcast_data[template_id]" id="base_template_id">
-											<?php echo $templates ?>
-                                        </select>
-                                    </div>
-                                    <div class="block py-2 mx-4 ">
-                                        <label for="recipients" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Recipients', 'email-subscribers' ); ?></label>
-                                        <select <?php echo $select_list_attr; ?> class="block w-full h-8 mt-1 text-sm rounded-md cursor-pointer h-9 <?php echo esc_attr( $select_list_class ); ?>" name="<?php echo esc_attr( $select_list_name ); ?>" id="ig_es_broadcast_list_ids">
-											<?php echo $lists ?>
-                                        </select>
-                                        <div class="block mt-1">
-                                            <span id="ig_es_total_contacts"></span>
-                                        </div>
-                                    </div>
+								</div>
+								<div class="broadcast_side_content ml-2 bg-gray-100 rounded-r-lg">
+									<div class="block pt-6 mx-4 pb-3">
+										<label for="template" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Design Template', 'email-subscribers' ); ?></label>
+										<select class="block w-full h-8 mt-1 text-sm rounded-md cursor-pointer h-9 form-select" name="broadcast_data[template_id]" id="base_template_id">
+											<?php 
+											echo wp_kses( $templates, $allowedtags ); 
+											?>
+										</select>
+									</div>
+									<div class="block py-2 mx-4 ">
+										<label for="recipients" class="text-sm font-medium leading-5 text-gray-700"><?php echo esc_html__( 'Recipients', 'email-subscribers' ); ?></label>
+										<select <?php echo esc_attr( $select_list_attr ); ?> class="block w-full h-8 mt-1 text-sm rounded-md cursor-pointer h-9 <?php echo esc_attr( $select_list_class ); ?>" name="<?php echo esc_attr( $select_list_name ); ?>" id="ig_es_broadcast_list_ids">
+											<?php
+											 echo wp_kses( $lists, $allowedtags ); 
+											?>
+										</select>
+										<div class="block mt-1">
+											<span id="ig_es_total_contacts"></span>
+										</div>
+									</div>
 
-                                    <div class="block pt-1 mx-4">
-                                        <span class="block pt-2 text-sm font-medium leading-5 text-gray-700 border-t border-gray-200"><?php echo esc_html__( 'Preview', 'email-subscribers' ); ?></span>
-                                        <div class="py-2">
-                                            <input type="radio" name="preview_option" class="form-radio" id="preview_in_popup" value="preview_in_popup" checked>
-                                            <label for="preview_in_popup" class="text-sm font-normal text-gray-600"><?php echo esc_html__( 'Browser', 'email-subscribers' ); ?>
-                                            </label>
-                                            <br>
-                                        </div>
+									<div class="block pt-1 mx-4">
+										<span class="block pt-2 text-sm font-medium leading-5 text-gray-700 border-t border-gray-200"><?php echo esc_html__( 'Preview', 'email-subscribers' ); ?></span>
+										<div class="py-2">
+											<input type="radio" name="preview_option" class="form-radio" id="preview_in_popup" value="preview_in_popup" checked>
+											<label for="preview_in_popup" class="text-sm font-normal text-gray-600"><?php echo esc_html__( 'Browser', 'email-subscribers' ); ?>
+											</label>
+											<br>
+										</div>
 
-                                        <img class="es-loader inline-flex align-middle" src="<?php echo ES_PLUGIN_URL ?>lite/public/images/spinner.gif" style="display:none;"/>
+										<img class="es-loader inline-flex align-middle" src="<?php echo esc_url( ES_PLUGIN_URL ); ?>lite/public/images/spinner.gif" style="display:none;"/>
 
-                                        <div class="hidden" id="preview_template">
-                                            <div class="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full" style="background-color: rgba(0,0,0,.5);">
-                                                <div class="absolute h-auto p-4 ml-16 mr-4 text-left bg-white rounded shadow-xl z-80 md:max-w-5xl md:p-6 lg:p-8 ">
-                                                    <h3 class="text-2xl text-center"><?php echo esc_html__( 'Template Preview', 'email-subscribers' ); ?></h3>
-                                                    <p class="m-4 text-center"><?php echo esc_html__( 'There could be a slight variation on how your customer will view the email content.', 'email-subscribers' ); ?></p>
-                                                    <div class="m-4 list-decimal broadcast_preview_container">
-                                                    </div>
-                                                    <div class="flex justify-center mt-8">
-                                                        <button id="close_template" class="px-4 py-2 text-sm font-medium tracking-wide text-gray-700 border rounded select-none no-outline focus:outline-none focus:shadow-outline-red hover:border-red-400 active:shadow-lg "><?php echo esc_html__( 'Close', 'email-subscribers' ); ?></button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+										<div class="hidden" id="preview_template">
+											<div class="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full" style="background-color: rgba(0,0,0,.5);">
+												<div class="absolute h-auto p-4 ml-16 mr-4 text-left bg-white rounded shadow-xl z-80 md:max-w-5xl md:p-6 lg:p-8 ">
+													<h3 class="text-2xl text-center"><?php echo esc_html__( 'Template Preview', 'email-subscribers' ); ?></h3>
+													<p class="m-4 text-center"><?php echo esc_html__( 'There could be a slight variation on how your customer will view the email content.', 'email-subscribers' ); ?></p>
+													<div class="m-4 list-decimal broadcast_preview_container">
+													</div>
+													<div class="flex justify-center mt-8">
+														<button id="close_template" class="px-4 py-2 text-sm font-medium tracking-wide text-gray-700 border rounded select-none no-outline focus:outline-none focus:shadow-outline-red hover:border-red-400 active:shadow-lg "><?php echo esc_html__( 'Close', 'email-subscribers' ); ?></button>
+													</div>
+												</div>
+											</div>
+										</div>
 
 										<?php do_action( 'ig_es_after_broadcast_content_left_pan_settings', $broadcast_data ); ?>
 
-                                        <button id="es_test_email_btn" type="button"
-                                                class="rounded-md border text-indigo-600 border-indigo-500 text-sm leading-5 font-medium transition ease-in-out duration-150 select-none inline-flex justify-center hover:text-indigo-500 hover:border-indigo-600 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg mt-1 px-4 py-2">
-                                            <span><?php echo esc_html__( 'Preview', 'email-subscribers' ); ?></span>
-                                        </button>
-                                        <img class="es-loader inline-flex align-middle pl-2 h-5 w-7" src="<?php echo ES_PLUGIN_URL ?>lite/admin/images/spinner-2x.gif" style="display:none;"/>
-                                        <br/><span class="es-send-success es-icon" style="display:none;"><?php _e( 'Email Sent Successfully ', 'email-subscribers' ) ?></span>
-                                        <br/><span class="es-send-error es-icon" style="display:none;"><?php _e( 'Something went wrong. Please try again later', 'email-subscribers' ) ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </fieldset>
+										<button id="es_test_email_btn" type="button"
+												class="rounded-md border text-indigo-600 border-indigo-500 text-sm leading-5 font-medium transition ease-in-out duration-150 select-none inline-flex justify-center hover:text-indigo-500 hover:border-indigo-600 hover:shadow-md focus:outline-none focus:shadow-outline-indigo focus:shadow-lg mt-1 px-4 py-2">
+											<span><?php echo esc_html__( 'Preview', 'email-subscribers' ); ?></span>
+										</button>
+										<img class="es-loader inline-flex align-middle pl-2 h-5 w-7" src="<?php echo esc_url( ES_PLUGIN_URL ); ?>lite/admin/images/spinner-2x.gif" style="display:none;"/>
+										<br/><span class="es-send-success es-icon" style="display:none;"><?php esc_html_e( 'Email Sent Successfully ', 'email-subscribers' ); ?></span>
+										<br/><span class="es-send-error es-icon" style="display:none;"><?php esc_html_e( 'Something went wrong. Please try again later', 'email-subscribers' ); ?></span>
+									</div>
+								</div>
+							</div>
+						</div>
+				</fieldset>
 
-                <fieldset class="es_fieldset">
+				<fieldset class="es_fieldset">
 
-                    <div class="my-4 hidden mx-auto es_broadcast_second max-w-7xl">
+					<div class="my-4 hidden mx-auto es_broadcast_second max-w-7xl">
 						<?php
 						$inline_preview_data = $this->get_broadcast_inline_preview_data( $broadcast_data );
 						?>
-                        <div class="max-w-7xl">
-                            <div class=" bg-white rounded-lg shadow md:flex">
-                                <div class="py-4 my-4 broadcast_main_content pt-3 pl-2">
-                                    <div class="block pb-2 mx-4">
-                                        <span class="text-sm font-medium text-gray-500"><?php echo esc_html__( 'Email Content Preview', 'email-subscribers' ); ?></span>
-                                    </div>
+						<div class="max-w-7xl">
+							<div class=" bg-white rounded-lg shadow md:flex">
+								<div class="py-4 my-4 broadcast_main_content pt-3 pl-2">
+									<div class="block pb-2 mx-4">
+										<span class="text-sm font-medium text-gray-500"><?php echo esc_html__( 'Email Content Preview', 'email-subscribers' ); ?></span>
+									</div>
 
-                                    <div class="block pb-2 mx-4 mt-4 inline_broadcast_preview_container">
-                                        <div class="block">
-                                            <span class="text-2xl font-normal text-gray-600 broadcast_preview_subject"><?php echo ! empty( $broadcast_data['subject'] ) ? esc_html( $broadcast_data['subject'] ) : ''; ?></span>
-                                        </div>
-                                        <div class="block mt-3">
-                                            <span class="text-sm font-bold text-gray-800 broadcast_preview_contact_name"><?php echo ! empty( $inline_preview_data['contact_name'] ) ? $inline_preview_data['contact_name'] : ''; ?></span>
-                                            <span class="pl-1 text-sm font-medium text-gray-700 broadcast_preview_contact_email"><?php echo ! empty( $inline_preview_data['contact_email'] ) ? "&lt;" . $inline_preview_data['contact_email'] . "&gt;" : ''; ?></span>
-                                        </div>
-                                        <div class="block mt-3 broadcast_preview_content">
+									<div class="block pb-2 mx-4 mt-4 inline_broadcast_preview_container">
+										<div class="block">
+											<span class="text-2xl font-normal text-gray-600 broadcast_preview_subject"><?php echo ! empty( $broadcast_data['subject'] ) ? esc_html( $broadcast_data['subject'] ) : ''; ?></span>
+										</div>
+										<div class="block mt-3">
+											<span class="text-sm font-bold text-gray-800 broadcast_preview_contact_name"><?php echo ! empty( $inline_preview_data['contact_name'] ) ? esc_html( $inline_preview_data['contact_name'] ) : ''; ?></span>
+											<span class="pl-1 text-sm font-medium text-gray-700 broadcast_preview_contact_email"><?php echo ! empty( $inline_preview_data['contact_email'] ) ? esc_html('&lt;' . $inline_preview_data['contact_email'] . '&gt;' ) : ''; ?></span>
+										</div>
+										<div class="block mt-3 broadcast_preview_content">
 											<?php
 											if ( ! empty( $broadcast_data['body'] ) ) {
 												$template_data['content']     = ! empty( $broadcast_data['body'] ) ? $broadcast_data['body'] : '';
@@ -445,52 +462,52 @@ class ES_Newsletters {
 												ob_start();
 												$this->es_broadcast_preview_callback( $template_data );
 												$tempate_html = ob_get_clean();
-												echo $tempate_html;
+												echo wp_kses( $tempate_html, $allowedtags);
 											}
 											?>
-                                        </div>
-                                    </div>
+										</div>
+									</div>
 
-                                </div>
+								</div>
 
-                                <div class="broadcast_side_content ml-2 bg-gray-100 rounded-r-lg">
-                                    <div id="ig_es_total_recipients" class="block mx-4 	border-b border-gray-200">
+								<div class="broadcast_side_content ml-2 bg-gray-100 rounded-r-lg">
+									<div id="ig_es_total_recipients" class="block mx-4 	border-b border-gray-200">
 
-                                    </div>
+									</div>
 
 									<?php do_action( 'ig_es_after_broadcast_right_pan_settings', $broadcast_data ); ?>
 
-                                    <div class="block w-full px-4 py-2">
+									<div class="block w-full px-4 py-2">
 										<?php
 										$enable_open_tracking = ! empty( $broadcast_data['meta']['enable_open_tracking'] ) ? $broadcast_data['meta']['enable_open_tracking'] : get_option( 'ig_es_track_email_opens', 'yes' );
 										?>
-                                        <div class="flex w-full pt-2 border-t border-gray-200">
-                                            <div class="w-11/12 text-sm font-normal text-gray-600"><?php echo esc_html__( 'Open Tracking', 'email-subscribers' ); ?>
-                                            </div>
-                                            <div>
-                                                <label for="enable_open_tracking" class="inline-flex items-center cursor-pointer ">
+										<div class="flex w-full pt-2 border-t border-gray-200">
+											<div class="w-11/12 text-sm font-normal text-gray-600"><?php echo esc_html__( 'Open Tracking', 'email-subscribers' ); ?>
+											</div>
+											<div>
+												<label for="enable_open_tracking" class="inline-flex items-center cursor-pointer ">
 								<span class="relative">
 									<input id="enable_open_tracking" type="checkbox" class="absolute w-0 h-0 opacity-0 es-check-toggle"
-                                           name="broadcast_data[meta][enable_open_tracking]" value="yes"  <?php checked( $enable_open_tracking, 'yes' ); ?>/>
+										   name="broadcast_data[meta][enable_open_tracking]" value="yes"  <?php checked( $enable_open_tracking, 'yes' ); ?>/>
 									<span class="block w-8 h-5 bg-gray-300 rounded-full shadow-inner es-mail-toggle-line"></span>
 									<span class="absolute inset-y-0 left-0 block w-3 h-3 mt-1 ml-1 transition-all duration-300 ease-in-out bg-white rounded-full shadow es-mail-toggle-dot focus-within:shadow-outline"></span>
 								</span>
-                                                </label>
-                                            </div>
-                                        </div>
+												</label>
+											</div>
+										</div>
 										<?php do_action( 'ig_es_after_broadcast_tracking_options_settings', $broadcast_data ); ?>
-                                    </div>
+									</div>
 
 									<?php do_action( 'ig_es_broadcast_scheduling_options_settings', $broadcast_data ); ?>
-                                </div>
+								</div>
 
-                            </div>
-                        </div>
-                    </div>
+							</div>
+						</div>
+					</div>
 
-                </fieldset>
-            </form>
-        </div>
+				</fieldset>
+			</form>
+		</div>
 
 		<?php
 	}
@@ -531,7 +548,7 @@ class ES_Newsletters {
 					'finish_at'   => '',
 					'created_at'  => ig_get_current_date_time(),
 					'updated_at'  => ig_get_current_date_time(),
-					'meta'        => maybe_serialize( array( 'type' => 'newsletter' ) )
+					'meta'        => maybe_serialize( array( 'type' => 'newsletter' ) ),
 				);
 
 				if ( empty( $notification ) ) {
@@ -608,7 +625,7 @@ class ES_Newsletters {
 					$last_name = $contact_details[1];
 				}
 			}
-			//$first_name   =
+			// $first_name   =
 
 			$es_template_body = $template_data['content'];
 
@@ -617,6 +634,8 @@ class ES_Newsletters {
 			$es_template_body = str_replace( '{{EMAIL}}', $useremail, $es_template_body );
 			$es_template_body = str_replace( '{{FIRSTNAME}}', $first_name, $es_template_body );
 			$es_template_body = str_replace( '{{LASTNAME}}', $last_name, $es_template_body );
+			$allowedtags 	  = ig_es_allowed_html_tags_in_esc();
+			add_filter( 'safe_style_css', 'ig_es_allowed_css_style' );
 
 			if ( has_post_thumbnail( $template_id ) ) {
 				$image_array = wp_get_attachment_image_src( get_post_thumbnail_id( $template_id ), 'full' );
@@ -625,23 +644,26 @@ class ES_Newsletters {
 				$image = '';
 			}
 
-			$html = '';
+			$html  = '';
 			$html .= '<style type="text/css">
-		.es-preview {
-			background-color:#FFF;
-			font-size:16px;
-		}
+			.es-main-preview-block{
+				display:flex;
+			}
+			.es-clear-preview{
+				clear: both;
+			}
+			
 		</style>
 		<div class="wrap">
 		<div class="tool-box">
-		<div class="es-main" style="display:flex;">
+		<div class="es-main-preview-block">
 		<div class="es-preview broadcast-preview w-full">' . $es_template_body . '</div>
-		<div style="clear:both;"></div>
+		<div class="es-clear-preview"></div>
 		</div>
-		<div style="clear:both;"></div>
+		<div class="es-clear-preview"></div>
 		</div>
 		</div>';
-			echo apply_filters( 'the_content', $html );
+			echo wp_kses( apply_filters( 'the_content', $html ), $allowedtags);
 		}
 
 	}
@@ -754,7 +776,7 @@ class ES_Newsletters {
 
 		if ( ! empty( $list_id ) ) {
 			// Check if multiple lists selection is enabled.
-			if( is_array( $list_id ) && ! empty( $list_id ) ) {
+			if ( is_array( $list_id ) && ! empty( $list_id ) ) {
 				// Since we need to get only one sample email for showing the preview, we can get it from the first list itself.
 				$list_id = $list_id[0];
 			}
@@ -801,7 +823,6 @@ class ES_Newsletters {
 	 * @return array $broadcast_data
 	 *
 	 * @since 4.4.7
-	 *
 	 */
 	public function add_tracking_fields_data( $broadcast_data = array() ) {
 
@@ -839,7 +860,7 @@ class ES_Newsletters {
 		if ( ! empty( $schedule_str ) ) {
 			$gmt_offset_option = get_option( 'gmt_offset' );
 			$gmt_offset        = ( ! empty( $gmt_offset_option ) ) ? $gmt_offset_option : 0;
-			$schedule_date     = date( 'Y-m-d H:i:s', $schedule_str - ( $gmt_offset * HOUR_IN_SECONDS ) );
+			$schedule_date     = gmdate( 'Y-m-d H:i:s', $schedule_str - ( $gmt_offset * HOUR_IN_SECONDS ) );
 
 			$data['start_at'] = $schedule_date;
 			$meta             = ! empty( $data['meta'] ) ? maybe_unserialize( $data['meta'] ) : array();
@@ -854,15 +875,14 @@ class ES_Newsletters {
 	/**
 	 * Method to check if open tracking is enabled broadcast wise.
 	 *
-	 * @param bool $is_track_email_opens Is open tracking enabled.
-	 * @param int $contact_id Contact ID.
-	 * @param int $campaign_id Campaign ID.
+	 * @param bool  $is_track_email_opens Is open tracking enabled.
+	 * @param int   $contact_id Contact ID.
+	 * @param int   $campaign_id Campaign ID.
 	 * @param array $link_data Link data.
 	 *
 	 * @return bool $is_track_email_opens Is open tracking enabled.
 	 *
 	 * @since 4.4.7
-	 *
 	 */
 	public function is_open_tracking_enabled( $is_track_email_opens, $contact_id, $campaign_id, $link_data ) {
 		if ( ! empty( $link_data ) ) {

@@ -131,6 +131,52 @@
   color: #1a1a1a;
 }
 
+.pp-admin-page-header .tab-navigation .tabset.has-icon {
+  padding-left: 60px;
+  background-position: 24px center;
+  background-repeat: no-repeat;
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-general {
+  background-image: url( ../img/general.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-general.current {
+  background-image: url( ../img/general_current.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-videos {
+  background-image: url( ../img/videos.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-videos.current {
+  background-image: url( ../img/videos_current.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-advanced {
+  background-image: url( ../img/advanced.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-advanced.current {
+  background-image: url( ../img/advanced_current.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-addons {
+  background-image: url( ../img/addons.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-addons.current {
+  background-image: url( ../img/addons_current.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-info {
+  background-image: url( ../img/info.svg );
+}
+
+.pp-admin-page-header .tab-navigation .tabset.icon-info.current {
+  background-image: url( ../img/info_current.svg );
+}
+
 .pp-admin-page-inner {
   padding: 24px;
   background-color: #fff;
@@ -154,18 +200,14 @@
 }
 
 .wp-core-ui .pp-admin-page-inner .tab-panel .button-primary {
-  background-color: #fe7f0f;
-  border: 1px solid #febf87;
+  background-color: #0073aa;
+  border: 1px solid #0073aa;
   box-shadow: none;
   text-shadow: none;
   font-size: 16px;
   line-height: 1;
   height: auto;
-  padding: 6px 12px;
-}
-
-.wp-core-ui .pp-admin-page-inner .tab-panel .button-primary:hover, .wp-core-ui .pp-admin-page-inner .tab-panel .button-primary:focus {
-  border-color: #fe7f0f;
+  padding: 12px 24px;
 }
 
 .pp-admin-page-wrapper .form-table th, .form-table td {
@@ -189,11 +231,15 @@
 }
 
 .wp-admin .pp-admin-page-wrapper select {
-  border: 1px solid #1a1a1a;
-  border-radius: 2px;
+  border: 3px solid #1a1a1a;
+  border-radius: 6px;
   padding: 6px;  
   line-height: auto;
   height: auto;
+}
+
+.pp-admin-page-wrapper a {
+  color: #0073aa;
 }
 
 .pp-admin-page-wrapper .toggle {
@@ -255,9 +301,4 @@ body:not(.rtl) .pp-admin-page-wrapper .toggle input[type="checkbox"]:checked + l
 
 .form-table.pp-admin-section-fields {
   margin-top: 0;
-}
-
-.pp-admin-page-wrapper .highlight, .pp-admin-page-inner a, .pp-admin-page-inner a:hover, .pp-admin-page-inner a:focus {
-  color: #fe7f0f;
-  background-color: transparent;
 }

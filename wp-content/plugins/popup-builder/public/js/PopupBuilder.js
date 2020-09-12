@@ -63,18 +63,18 @@ SGPBPopup.htmlCustomButton = function()
 		button.bind('click', function() {
 			var behavior = settings['sgpb-custom-button'];
 
-			if (behavior == 'redirectToURL') {
+			if (behavior === 'redirectToURL') {
 				if (settings['sgpb-custom-button-redirect-new-tab']) {
 					window.open(settings['sgpb-custom-button-redirect-URL']);
 				}
 				else {
-					window.location.href = settings['sgpb-custom-button-redirect-URL']
+					window.location.href = settings['sgpb-custom-button-redirect-URL'];
 				}
 			}
-			if (behavior == 'hidePopup') {
+			if (behavior === 'hidePopup') {
 				SGPBPopup.closePopup();
 			}
-			if (behavior == 'copyToClipBoard') {
+			if (behavior === 'copyToClipBoard') {
 				var textAreaId = 1;
 				var value = settings['sgpb-custom-button-copy-to-clipboard-text'];
 				var textArea = jQuery('<textarea>', {
@@ -95,7 +95,7 @@ SGPBPopup.htmlCustomButton = function()
 				}
 
 				if (settings['sgpb-custom-button-copy-to-clipboard-alert']) {
-					alert(settings['sgpb-custom-button-copy-to-clipboard-message'])
+					alert(settings['sgpb-custom-button-copy-to-clipboard-message']);
 				}
 			}
 		});
@@ -104,8 +104,7 @@ SGPBPopup.htmlCustomButton = function()
 	buttons.each(function() {
 		var settings = jQuery.parseJSON(decodeURIComponent(jQuery(this).attr('data-options')));
 		buttonActionBehaviors(jQuery(this), settings);
-	})
-
+	});
 };
 
 SGPBPopup.listeners = function () {
@@ -144,7 +143,7 @@ SGPBPopup.listeners = function () {
 		var obj = e.detail.currentObj.sgpbPopupObj;
 
 		/* if no analytics extension */
-		if (typeof SGPB_ANALYTICS_PARAMS == 'undefined') {
+		if (typeof SGPB_ANALYTICS_PARAMS === 'undefined') {
 			if (obj.getCountPopupOpen()) {
 				obj.addToCounter(popupOptions);
 			}
@@ -180,9 +179,9 @@ SGPBPopup.listeners = function () {
 
 SGPBPopup.mobileSafariAdditionalSettings = function(e)
 {
-	if (typeof e == 'undefined') {
+	if (typeof e === 'undefined') {
 		var args = SGPBPopup.prototype.getAdditionalPopupData();
-		if (typeof args == 'undefined') {
+		if (typeof args === 'undefined') {
 			return false;
 		}
 		var popupOptions = args.popupData;
@@ -199,14 +198,14 @@ SGPBPopup.mobileSafariAdditionalSettings = function(e)
 	}
 	var userAgent = window.navigator.userAgent;
 	if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
-		if (typeof popupOptions['sgpb-popup-dimension-mode'] != 'undefined' && popupOptions['sgpb-popup-dimension-mode'] == 'responsiveMode') {
+		if (typeof popupOptions['sgpb-popup-dimension-mode'] !== 'undefined' && popupOptions['sgpb-popup-dimension-mode'] === 'responsiveMode') {
 			var openedPopupWidth = parseInt(window.innerHeight-100);
 			if (jQuery('.sgpb-popup-builder-content-'+popupId +' iframe').length) {
 				jQuery('.sgpb-popup-builder-content-'+popupId).attr('style', 'height:'+openedPopupWidth+'px !important;');
 			}
 		}
 	}
-}
+};
 
 SGPBPopup.prototype.setAdditionalPopupData = function(additionalPopupData)
 {
@@ -221,12 +220,12 @@ SGPBPopup.prototype.getAdditionalPopupData = function()
 SGPBPopup.prototype.setCountPopupOpen = function(countPopupOpen)
 {
 	this.countPopupOpen = countPopupOpen;
-}
+};
 
 SGPBPopup.prototype.getCountPopupOpen = function()
 {
 	return this.countPopupOpen;
-}
+};
 
 SGPBPopup.playMusic = function(e) {
 	var args = e.detail;
@@ -268,7 +267,7 @@ SGPBPopup.prototype.onceListener = function()
 		document.onkeydown = function(e) {
 			e = e || window.event;
 
-			if (e.keyCode == 27) { /*esc pressed*/
+			if (e.keyCode === 27) { /*esc pressed*/
 				var currentPopup = that.getPopupIdForNextEsc();
 				if (!currentPopup) {
 					return false;
@@ -280,23 +279,23 @@ SGPBPopup.prototype.onceListener = function()
 	});
 
 	sgAddEvent(window, 'sgpbDidClose', function(e) {
-		if (window.sgPopupBuilder.length != 0) {
+		if (window.sgPopupBuilder.length !== 0) {
 			var popups = [].concat(window.sgPopupBuilder).reverse();
 			for (var i in popups) {
 				var nextIndex = ++i;
 				var nextObj = popups[nextIndex];
 
-				if (typeof nextObj == 'undefined') {
+				if (typeof nextObj === 'undefined') {
 					jQuery('html').removeClass('sgpb-overflow-hidden');
 					jQuery('body').removeClass('sgpb-overflow-hidden-body');
 					break;
 				}
 
-				if (nextObj.isOpen == false) {
+				if (nextObj.isOpen === false) {
 					continue;
 				}
 				var options = SGPBPopup.getPopupOptionsById(nextObj.popupId);
-				if (typeof options['sgpb-disable-page-scrolling'] == 'undefined') {
+				if (typeof options['sgpb-disable-page-scrolling'] === 'undefined') {
 					jQuery('html').removeClass('sgpb-overflow-hidden');
 					jQuery('body').removeClass('sgpb-overflow-hidden-body');
 				}
@@ -463,7 +462,7 @@ SGPBPopup.prototype.prepareOpen = function()
 		var F = new Function (instructions);
 
 		return(F());
-	}
+	};
 
 	popupConfig.customShouldClose = function()
 	{
@@ -472,7 +471,7 @@ SGPBPopup.prototype.prepareOpen = function()
 		var F = new Function (instructions);
 
 		return(F());
-	}
+	};
 
 	this.setPopupDimensions();
 
@@ -734,7 +733,7 @@ SGPBPopup.prototype.setPopupLimitationCookie = function(popupData)
 	var popupShowingLimitExpiry = parseInt(popupData['sgpb-show-popup-same-user-expiry']);
 
 	SGPBPopup.setCookie(cookieData.cookieName, JSON.stringify(cookie), popupShowingLimitExpiry, currentUrl);
-}
+};
 
 SGPBPopup.prototype.isSatistfyForShowingLimitation = function(popupData)
 {
@@ -753,7 +752,7 @@ SGPBPopup.prototype.isSatistfyForShowingLimitation = function(popupData)
 	}
 
 	return popupData['sgpb-show-popup-same-user-count'] > cookieData.cookie.openingCount;
-}
+};
 
 SGPBPopup.prototype.getPopupShowLimitationCookie = function(popupData)
 {
@@ -761,7 +760,7 @@ SGPBPopup.prototype.getPopupShowLimitationCookie = function(popupData)
 	var savedCookie = this.filterPopupLimitationCookie(savedCookie);
 
 	return savedCookie;
-}
+};
 
 SGPBPopup.prototype.filterPopupLimitationCookie = function(cookie)
 {
@@ -787,7 +786,7 @@ SGPBPopup.prototype.filterPopupLimitationCookie = function(cookie)
 	SGPBPopup.deleteCookie(cookie.pageLevelCookieName, currentUrl);
 
 	return result;
-}
+};
 
 SGPBPopup.prototype.getPopupShowLimitationCookieDetails = function(popupData)
 {
@@ -815,10 +814,10 @@ SGPBPopup.prototype.getPopupShowLimitationCookieDetails = function(popupData)
 		'pageLevelCookie': popupLimitationPageLevelCookie,
 		'domainLevelCookie': popupLimitationDomainCookie,
 		'isPageLevel': pageLevelCookie
-	}
+	};
 
 	return result;
-}
+};
 
 SGPBPopup.prototype.themeCreator = function()
 {
@@ -1851,13 +1850,13 @@ SGPBPopup.b64DecodeUnicode = function(str)
 				chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
 				chr3 = ((enc3 & 3) << 6) | enc4;
 
-				output = output + String.fromCharCode(chr1);
+				output += String.fromCharCode(chr1);
 
 				if (enc3 != 64) {
-					output = output + String.fromCharCode(chr2);
+					output += String.fromCharCode(chr2);
 				}
 				if (enc4 != 64) {
-					output = output + String.fromCharCode(chr3);
+					output += String.fromCharCode(chr3);
 				}
 
 			}
@@ -1911,7 +1910,7 @@ SGPBPopup.unserialize = function(data)
 	var utf8Overhead = function(str) {
 		var s = str.length;
 		for (var i = str.length - 1; i >= 0; i--) {
-			var code = str.charCodeAt(i)
+			var code = str.charCodeAt(i);
 			if (code > 0x7f && code <= 0x7ff) {
 				s++;
 			}
@@ -1924,11 +1923,11 @@ SGPBPopup.unserialize = function(data)
 			}
 		}
 		return s - 1;
-	}
+	};
 
 	var error = function(type, msg, filename, line) {
 		throw new $global[type](msg, filename, line);
-	}
+	};
 	var readUntil = function(data, offset, stopchr) {
 		var i = 2;
 		var buf = [];
@@ -1943,54 +1942,54 @@ SGPBPopup.unserialize = function(data)
 			i += 1;
 		}
 		return [buf.length, buf.join('')];
-	}
+	};
 	var readChrs = function(data, offset, length) {
-		var i, chr, buf
+		var i, chr, buf;
 
-		buf = []
+		buf = [];
 		for (i = 0; i < length; i++) {
 			chr = data.slice(offset + (i - 1), offset + i);
 			buf.push(chr);
 			length -= utf8Overhead(chr);
 		}
 		return [buf.length, buf.join('')];
-	}
+	};
 	function _unserialize(data, offset) {
-		var dtype
-		var dataoffset
-		var keyandchrs
-		var keys
-		var contig
-		var length
-		var array
-		var readdata
-		var readData
-		var ccount
-		var stringlength
-		var i
-		var key
-		var kprops
-		var kchrs
-		var vprops
-		var vchrs
-		var value
-		var chrs = 0
+		var dtype;
+		var dataoffset;
+		var keyandchrs;
+		var keys;
+		var contig;
+		var length;
+		var array;
+		var readdata;
+		var readData;
+		var ccount;
+		var stringlength;
+		var i;
+		var key;
+		var kprops;
+		var kchrs;
+		var vprops;
+		var vchrs;
+		var value;
+		var chrs = 0;
 		var typeconvert = function(x) {
 			return x
-		}
+		};
 
 		if (!offset) {
 			offset = 0
 		}
-		dtype = (data.slice(offset, offset + 1)).toLowerCase()
+		dtype = (data.slice(offset, offset + 1)).toLowerCase();
 
-		dataoffset = offset + 2
+		dataoffset = offset + 2;
 
 		switch (dtype) {
 			case 'i':
 				typeconvert = function(x) {
 					return parseInt(x, 10);
-				}
+				};
 				readData = readUntil(data, dataoffset, ';');
 				chrs = readData[0];
 				readdata = readData[1];
@@ -1999,7 +1998,7 @@ SGPBPopup.unserialize = function(data)
 			case 'b':
 				typeconvert = function(x) {
 					return parseInt(x, 10) !== 0;
-				}
+				};
 				readData = readUntil(data, dataoffset, ';');
 				chrs = readData[0];
 				readdata = readData[1];
@@ -2008,25 +2007,25 @@ SGPBPopup.unserialize = function(data)
 			case 'd':
 				typeconvert = function(x) {
 					return parseFloat(x);
-				}
+				};
 				readData = readUntil(data, dataoffset, ';');
 				chrs = readData[0];
 				readdata = readData[1];
 				dataoffset += chrs + 1;
 				break;
 			case 'n':
-				readdata = null
-				break
+				readdata = null;
+				break;
 			case 's':
-				ccount = readUntil(data, dataoffset, ':')
-				chrs = ccount[0]
-				stringlength = ccount[1]
-				dataoffset += chrs + 2
+				ccount = readUntil(data, dataoffset, ':');
+				chrs = ccount[0];
+				stringlength = ccount[1];
+				dataoffset += chrs + 2;
 
-				readData = readChrs(data, dataoffset + 1, parseInt(stringlength, 10))
-				chrs = readData[0]
-				readdata = readData[1]
-				dataoffset += chrs + 2
+				readData = readChrs(data, dataoffset + 1, parseInt(stringlength, 10));
+				chrs = readData[0];
+				readdata = readData[1];
+				dataoffset += chrs + 2;
 				if (chrs !== parseInt(stringlength, 10) && chrs !== readdata.length) {
 					error('SyntaxError', 'String length mismatch')
 				}
@@ -2061,7 +2060,7 @@ SGPBPopup.unserialize = function(data)
 				}
 
 				if (contig) {
-					array = new Array(length)
+					array = new Array(length);
 					for (i = 0; i < length; i++) {
 						array[i] = readdata[i];
 					}
@@ -2235,7 +2234,7 @@ SGPBPopup.setCookie = function(cName, cValue, exDays, cPageLevel)
 		}
 	}
 
-	if ((typeof cPageLevel == 'boolean' && cPageLevel == false) || cPageLevel == '' || typeof cPageLevel == 'undefined') {
+	if (Boolean(cPageLevel)) {
 		cookiePageLevel = 'path=/;';
 	}
 
@@ -2474,7 +2473,7 @@ SgpbEventListener.prototype.sgpbLoad = function(listenerObj, eventData)
 	var timeout = parseInt(eventData.value);
 	var popupObj = listenerObj.getPopupObj();
 	var popupOptions = popupObj.getPopupData();
-	timeout = timeout*1000;
+	timeout *= 1000;
 	var timerId,
 		repetitiveTimeout = null;
 

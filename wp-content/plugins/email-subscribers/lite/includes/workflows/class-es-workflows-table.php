@@ -90,6 +90,7 @@ class ES_Workflows_Table extends WP_List_Table {
 	 * @since 4.4.1
 	 */
 	public function render() {
+
 		$action      = ig_es_get_request_data( 'action' );
 		$workflow_id = ig_es_get_request_data( 'id' );
 
@@ -99,7 +100,7 @@ class ES_Workflows_Table extends WP_List_Table {
 		if ( ! empty( $action_status ) ) {
 			if ( ! empty( $workflow_id ) ) {
 				$workflow_edit_url = ES_Workflow_Admin_Edit::get_edit_url( $workflow_id );
-				if( ! empty( $workflow_edit_url ) ) {
+				if ( ! empty( $workflow_edit_url ) ) {
 					$workflow_edit_url = esc_url( $workflow_edit_url );
 				}
 				if ( 'added' === $action_status ) {
@@ -127,7 +128,7 @@ class ES_Workflows_Table extends WP_List_Table {
 			ES_Common::show_message( $message, $status );
 		}
 		?>
-		<div class="wrap">
+		<div class="wrap pt-3 font-sans">
 			<?php
 			if ( 'new' === $action ) {
 				ES_Workflow_Admin_Edit::load_workflow();
@@ -150,20 +151,28 @@ class ES_Workflows_Table extends WP_List_Table {
 	 */
 	public function load_workflow_list() {
 		?>
-		<h1 class=" wp-heading-inline"><span class="text-2xl font-medium leading-7 text-gray-900 sm:leading-9 sm:truncate"><?php esc_html_e( 'Workflows', 'email-subscribers' ); ?>
-		</span>
-		<a href="admin.php?page=es_workflows&action=new"
-		class="px-2 py-2 pt-2 mx-2 ig-es-title-button"><?php esc_html_e( 'Add New', 'email-subscribers' ); ?></a>
-		<?php do_action( 'ig_es_after_workflow_type_buttons' ); ?>
-		</h1>
-		<div id="poststuff" class="es-items-lists">
+		<div class="flex">
+			<div>
+				<h2 class="wp-heading-inline text-3xl pb-1 font-bold text-gray-700 sm:leading-9 sm:truncate pr-4">
+					<?php esc_html_e( 'Workflows', 'email-subscribers' ); ?>
+				</h2>
+			</div>
+			<div class="mt-1">
+			<a href="admin.php?page=es_workflows&action=new" class="px-3 py-1 ml-2 leading-5 align-middle ig-es-title-button">
+				<?php esc_html_e( 'Add New', 'email-subscribers' ); ?></a>
+				<?php do_action( 'ig_es_after_workflow_type_buttons' ); ?>
+			</div>
+		</div>
+		<div><hr class="wp-header-end"></div>
+		<div id="poststuff" class="es-items-lists mt-4">
 			<div id="post-body" class="metabox-holder column-1">
 				<div id="post-body-content">
 					<div class="meta-box-sortables ui-sortable">
-						<form method="post">
+						<form method="get">
+							<input type="hidden" name="page" value="es_workflows" />
 							<?php
-							$this->prepare_items();
-							$this->display();
+								$this->prepare_items();
+								$this->display();
 							?>
 						</form>
 					</div>
@@ -226,10 +235,10 @@ class ES_Workflows_Table extends WP_List_Table {
 		switch ( $column_name ) {
 
 			case 'created_at':
-			$output = ig_es_format_date_time( $item[ $column_name ] );
-			break;
+				$output = ig_es_format_date_time( $item[ $column_name ] );
+				break;
 			default:
-			$output = $item[ $column_name ];
+				$output = $item[ $column_name ];
 		}
 
 		return $output;

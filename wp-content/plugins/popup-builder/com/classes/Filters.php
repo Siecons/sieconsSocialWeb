@@ -53,6 +53,50 @@ class Filters
 		add_filter( 'rank_math/sitemap/exclude_post_type', array($this, 'excludeRankMath'), 10, 2 );
 		add_filter('sgpbUserSelectionQuery', array($this, 'userSelectionQueryAddExtraAttributes'), 100, 1);
 		add_filter('sgpbFilterOptionsBeforeSaving', array($this, 'filterOptionsBeforeSaving'), 100, 1);
+		add_filter('sgpbPopupExtraData', array($this, 'popupExtraDataRender'), 100, 2);
+	}
+
+	public function popupExtraDataRender($popupId = 0, $popupOptions = array())
+	{
+		$floatingButton = '';
+		if (empty($popupOptions['sgpb-enable-floating-button'])) {
+			return $floatingButton;
+		}
+		$buttonStyles = '';
+		$buttonClass = 'sgpb-'.$popupOptions['sgpb-floating-button-style'].'-'.$popupOptions['sgpb-floating-button-position'];
+
+		if (isset($popupOptions['sgpb-floating-button-style']) && $popupOptions['sgpb-floating-button-style'] == 'basic' && strstr($popupOptions['sgpb-floating-button-position'], 'center')) {
+			if (strstr($popupOptions['sgpb-floating-button-position'], 'top') || strstr($popupOptions['sgpb-floating-button-position'], 'bottom')) {
+				$buttonStyles .= 'right: '.$popupOptions['sgpb-floating-button-position-right'].'%;';
+			}
+			else if (strstr($popupOptions['sgpb-floating-button-position'], 'left') || strstr($popupOptions['sgpb-floating-button-position'], 'right')) {
+				$buttonStyles .= 'top: '.$popupOptions['sgpb-floating-button-position-top'].'%;';
+			}
+		}
+
+		if (isset($popupOptions['sgpb-floating-button-font-size'])) {
+			$buttonStyles .= 'font-size: '.$popupOptions['sgpb-floating-button-font-size'].'px;';
+		}
+		if (isset($popupOptions['sgpb-floating-button-border-size'])) {
+			$buttonStyles .= 'border-width: '.$popupOptions['sgpb-floating-button-border-size'].'px;';
+			$buttonStyles .= 'border-style: solid;';
+		}
+		if (isset($popupOptions['sgpb-floating-button-border-radius'])) {
+			$buttonStyles .= 'border-radius: '.$popupOptions['sgpb-floating-button-border-radius'].'px;';
+		}
+		if (isset($popupOptions['sgpb-floating-button-border-color'])) {
+			$buttonStyles .= 'border-color: '.$popupOptions['sgpb-floating-button-border-color'].';';
+		}
+		if (isset($popupOptions['sgpb-floating-button-bg-color'])) {
+			$buttonStyles .= 'background-color: '.$popupOptions['sgpb-floating-button-bg-color'].';';
+		}
+		if (isset($popupOptions['sgpb-floating-button-text-color'])) {
+			$buttonStyles .= 'color: '.$popupOptions['sgpb-floating-button-text-color'].';';
+		}
+
+		$floatingButton = '<button class="'.$buttonClass.' sgpb-floating-button sg-popup-id-'.$popupId.'" style="'.$buttonStyles.'">'.$popupOptions['sgpb-floating-button-text'].'</button>';
+
+		echo $floatingButton;
 	}
 
 	public function filterOptionsBeforeSaving($unfilteredData = array())
@@ -404,6 +448,14 @@ class Filters
 			'priority' => 'low'
 		);
 
+		$metaboxes['floatingButton'] = array(
+			'key' => 'floatingButton',
+			'displayName' => 'Floating Button',
+			'filePath' => SG_POPUP_VIEWS_PATH.'floatingButton.php',
+			'context' => 'side',
+			'priority' => 'high'
+		);
+
 		return $metaboxes;
 	}
 
@@ -640,11 +692,10 @@ class Filters
 
 			$content = str_replace(' src="'.$urls[$key].'"', ' src="" data-attr-src="'.esc_attr($urls[$key]).'"', $content);
 		}
-
 		if (function_exists('do_blocks')) {
-            $content = do_blocks($content);
-        }
-        
+			$content = do_blocks($content);
+		}
+
 		return do_shortcode($content);
 	}
 

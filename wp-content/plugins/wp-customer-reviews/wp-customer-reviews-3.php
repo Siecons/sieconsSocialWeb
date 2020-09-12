@@ -3,7 +3,7 @@
  * Plugin Name: WP Customer Reviews
  * Plugin URI: http://www.gowebsolutions.com/wp-customer-reviews/
  * Description: Allows your visitors to leave business / product reviews. Testimonials are in Microdata / Microformat and may display star ratings in search results.
- * Version: 3.4.2
+ * Version: 3.5.4
  * Author: Go Web Solutions
  * Author URI: http://www.gowebsolutions.com/
  * Text Domain: wp-customer-reviews
@@ -60,6 +60,37 @@ class WPCustomerReviews3 {
 		'frontend_review_pagination' => 'html',
 		'frontend_review_rating_stars' => 'html',
 		'wp-customer-reviews-css' => 'css'
+	);
+	var $allowedFieldTags = array(
+		'i' => true,
+		'em' => true,
+		'b' => true,
+		'strong' => true
+	);
+	var $allowedContentTags = array(
+		'br' => true,
+		'p' => true,
+		'hr' => true,
+		'i' => true,
+		'em' => true,
+		'b' => true,
+		'strong' => true,
+		'a' => array(
+			'href' => array(),
+			'title' => array(),
+			'target' => array(),
+			'rel' => array(),
+			'style' => array(),
+			'class' => array()
+		),
+		'img' => array(
+			'src' => array(),
+			'alt' => array(),
+			'width' => array(),
+			'height' => array(),
+			'style' => array(),
+			'class' => array()
+		)
 	);
 	
 	function __construct() {
@@ -296,7 +327,7 @@ class WPCustomerReviews3 {
 		return $where;
 	}
 
-    function get_reviews($postid, $thispage, $opts) {
+	function get_reviews($postid, $thispage, $opts) {
 		$queryOpts = array(
 			'orderby' => 'date',
 			'order' => 'DESC',
@@ -329,7 +360,6 @@ class WPCustomerReviews3 {
 			$review = $this->get_post_custom_single($post->ID);
 			
 			$review['id'] = $post->ID;
-			$review['stars'] = $this->get_rating_template($review[$this->prefix.'_review_rating'], false);
 			
 			$params = array($this->prefix.'_review_name', $this->prefix.'_review_title', $this->prefix.'_review_website', $this->prefix.'_review_admin_response');
 			$this->param($params, $review);
@@ -367,12 +397,30 @@ class WPCustomerReviews3 {
 			if ($opts->hideresponse == 1) {
 				unset($review[$this->prefix.'_review_admin_response']);
 			}
+
+			// BEG: xss protect
+			foreach ($review as $k => $r) {
+				if ($k === $this->prefix.'_custom_fields' || $k === 'content') {
+					continue;
+				}
+
+				$review[$k] = wp_kses($r, $this->allowedFieldTags);
+			}
+
+			foreach ($review[$this->prefix.'_custom_fields'] as $k => $r) {
+				$review[$this->prefix.'_custom_fields'][$k]['value'] = wp_kses($r['value'], $this->allowedFieldTags);
+			}
+
+			$review['content'] = wp_kses($review['content'], $this->allowedContentTags);
+			// END: xss protect
+
+			$review['stars'] = $this->get_rating_template($review[$this->prefix.'_review_rating'], false);
 			
 			$rtn->reviews[] = $review;
 		}
 		
-        return $rtn;
-    }
+		return $rtn;
+	}
 
     function iso8601($time=false) {
         if ($time === false) { $time = time(); }
@@ -487,11 +535,12 @@ class WPCustomerReviews3 {
 		// default some fields for those too lazy to use the plugin properly
 		$blog_name = get_bloginfo('name');
 		$blog_url = get_bloginfo('url');
+		
 		$business_name = $this->get_meta_or_default($parentData, $this->prefix.'_business_name', $blog_name);
 		$product_name = $this->get_meta_or_default($parentData, $this->prefix.'_product_name', $blog_name);
-		$parentData[$this->prefix.'_business_name'] = $business_name;
+		$parentData[$this->prefix.'_business_name'] = wp_kses($business_name, $this->allowedFieldTags);
+		$parentData[$this->prefix.'_product_name'] = wp_kses($product_name, $this->allowedFieldTags);
 		$parentData[$this->prefix.'_business_url'] = $blog_url;
-		$parentData[$this->prefix.'_product_name'] = $product_name;
 		
 		// todo: replace with provided image in future
 		$parentData[$this->prefix.'_business_image'] = $this->getpluginurl_abs() . 'css/1x1.png';
@@ -650,25 +699,26 @@ class WPCustomerReviews3 {
 		}
 		
 		return $reviews_content;
-    }
-    
-    // stripts html then trims text, but does not break up a word
-    function trim_text_to_word($review, $opts) {
-		$text = $review['content'];
-		$text = str_replace("<br", " <br", $text);
-		$text = trim(strip_tags($text));
-		$len = $opts->snippet;
-		
-        if (strlen($text) > $len) {		
-			preg_match('/^.{0,'.$len.'}(?:.*?)\b/siu', $text, $matches);
-			$text = $matches[0] . "... ";
-			if (strlen(trim($opts->morelink)) > 0) {
-				$postLink = $review['postLink']."#wpcr3_id_".$review['id'];
-				$text .= "<a href='{$postLink}'>$opts->morelink</a>";
+		}
+
+		// stripts html then trims text, but does not break up a word
+		function trim_text_to_word($review, $opts) {
+			$text = $review['content'];
+			$text = str_replace("<br", " <br", $text);
+			$text = trim(strip_tags($text));
+			$len = $opts->snippet;
+			
+			if (strlen($text) > $len) {
+				preg_match('/^.{0,'.$len.'}(?:.*?)\b/siu', $text, $matches);
+				$text = $matches[0] . "... ";
+				if (strlen(trim($opts->morelink)) > 0) {
+					$postLink = $review['postLink']."#wpcr3_id_".$review['id'];
+					$text .= "<a href='{$postLink}'>$opts->morelink</a>";
+				}
 			}
-        }
-        return $text;
-    }
+			
+			return $text;
+		}
 	
 	function print_filters_for($hook = '') {
 		global $wp_filter;
@@ -845,6 +895,35 @@ class WPCustomerReviews3 {
 		header('Content-type: text/css');
 		die($this->template('wp-customer-reviews-css'));
 	}
+
+	function isXssAttempt($s) {
+		// lowercase, url decode, decode entities, remove spaces, tabs, linebreaks, chars 0-31,127
+		$s = preg_replace('/[\s\x00-\x1F\x7F]/', '', html_entity_decode(urldecode(strtolower($s))));
+
+		if (stripos($s, 'javascript:') !== false) { return true; }
+		if (stripos($s, 'eval(') !== false) { return true; }
+		if (stripos($s, 'atob(') !== false) { return true; }
+		if (stripos($s, 'alert(') !== false) { return true; }
+		if (stripos($s, 'settimeout(') !== false) { return true; }
+		if (stripos($s, 'setinterval(') !== false) { return true; }
+		if (stripos($s, '<') !== false) { return true; }
+		if (stripos($s, '>') !== false) { return true; }
+		if (stripos($s, 'onerror') !== false) { return true; }
+		if (stripos($s, 'onload') !== false) { return true; }
+		if (stripos($s, 'onfocus') !== false) { return true; }
+		if (stripos($s, 'onblur') !== false) { return true; }
+		if (stripos($s, 'onchange') !== false) { return true; }
+		if (stripos($s, 'oninput') !== false) { return true; }
+		if (stripos($s, 'onclick') !== false) { return true; }
+		if (stripos($s, 'onpropertychange') !== false) { return true; }
+		if (stripos($s, 'onreadystatechange') !== false) { return true; }
+		if (stripos($s, 'onmouse') !== false) { return true; } // onmouse*
+		if (stripos($s, 'onkey') !== false) { return true; } // onkey*
+		if (stripos($s, '\"') !== false) { return true; }
+		if (stripos($s, "\'") !== false) { return true; }
+
+		return false;
+	}
 	
 	function ajax() {
 		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -859,31 +938,50 @@ class WPCustomerReviews3 {
 		$posted = new stdClass();
 		foreach ($this->p as $k => $v) {
 			$k = str_replace($this->prefix.'_', '', $k);
-			$posted->$k = trim(strip_tags($v));
+			$posted->$k = $v;
 		}
 		
-		$params = array('checkid', 'postid', 'on_postid', 'fname', 'femail', 'ajaxAct', 'page', 'pageOpts');
+		$params = array(
+			'ajaxAct2', 'postid', 'checkid2',
+			'fconfirm1', 'fconfirm2', 'fconfirm3',
+			'url', 'website',
+			'femail', 'fname', 'frating', 'ftitle', 'fwebsite',
+			'pageOpts', 'page', 'on_postid'
+		);
+
+		foreach($this->options['custom_fields'] as $name => $fieldArr) {
+			$params[] = $name;
+		}
+
 		$this->param($params, $posted);
+
+		// loop over expected params to check XSS
+		// because plugins/servers sometimes inject vars into $_GET and $_POST, and...
+		// $this->p, $this->posted then ends up with more than expected
+		foreach ($params as $k) {
+			$v = $posted->$k;
+
+			if ($this->isXssAttempt($v) === true) {
+				$rtn->err[] = 'You have failed the spambot check. Code 0';
+				die(json_encode($rtn));
+			}
+
+			$posted->$k = trim(strip_tags($v));
+		}
+
+		$ajaxAct = $posted->ajaxAct2;
+		$postid = (int) $posted->postid;
+		$checkId = (int) $posted->checkid2;
+		$checkIdExpect = ($postid * 42) - $postid;
 		
-		$cookieName = $this->prefix.'_checkid';
-		
-		if ($posted->ajaxAct === 'cookie') {
-			setcookie($cookieName, $posted->postid);
-		} else if ($posted->ajaxAct === 'form') {
-			if ($posted->checkid != $posted->postid) { $rtn->err[] = 'You have failed the spambot check. Code 1'; }
-			
-			// if (!isset($_COOKIE[$cookieName])) { $rtn->err[] = 'You have failed the spambot check. Code 2'; }
-			// if ($posted->checkid != $_COOKIE[$cookieName]) { $rtn->err[] = 'You have failed the spambot check. Code 3'; }
-			
-			if ($posted->fconfirm1 != '0') { $rtn->err[] = 'You have failed the spambot check. Code 4'; }
-			if ($posted->fconfirm2 != '1') { $rtn->err[] = 'You have failed the spambot check. Code 5'; }
-			if ($posted->fconfirm3 != '1') { $rtn->err[] = 'You have failed the spambot check. Code 6'; }
-			if ($posted->url != '') { $rtn->err[] = 'You have failed the spambot check. Code 7'; }
-			if ($posted->website != '') { $rtn->err[] = 'You have failed the spambot check. Code 8'; }
+		if ($ajaxAct === 'form') {
+			if ($checkId != $checkIdExpect) { $rtn->err[] = 'You have failed the spambot check. Code 1'; }
+			if ($posted->fconfirm1 != '0') { $rtn->err[] = 'You have failed the spambot check. Code 2'; }
+			if ($posted->fconfirm2 != '1') { $rtn->err[] = 'You have failed the spambot check. Code 3'; }
+			if ($posted->fconfirm3 != '1') { $rtn->err[] = 'You have failed the spambot check. Code 4'; }
+			if ($posted->url != '') { $rtn->err[] = 'You have failed the spambot check. Code 5'; }
+			if ($posted->website != '') { $rtn->err[] = 'You have failed the spambot check. Code 6'; }
 			if ($posted->femail != '' && filter_var($posted->femail, FILTER_VALIDATE_EMAIL) == false) { $rtn->err[] = 'Please enter a valid email address.'; }
-			
-			// remove the cookie
-			setcookie($cookieName, "", time()-3600);
 			
 			if (count($rtn->err)) { die(json_encode($rtn)); } // die here if we failed any spambot checks
 			
@@ -918,13 +1016,16 @@ class WPCustomerReviews3 {
 			
 			$datetime = date('m/d/Y h:i');
 			@wp_mail(get_bloginfo('admin_email'), "WP Customer Reviews: New Review Posted on {$datetime}", "A new review has been posted on ".get_bloginfo('name')." via WP Customer Reviews. \n\nYou will need to approve this review before it will appear on your site.");
-		} else if ($posted->ajaxAct === "pager") {
+		} else if ($ajaxAct === "pager") {
 			$opts = json_decode($posted->pageOpts);
 			$opts->thispage = $posted->page;
 			$opts->ajax = 1;
 			$opts->showsupport = 0;
 			$opts->on_postid = $posted->on_postid;
 			$rtn->output = $this->output_reviews_show($opts);
+		} else {
+			$rtn->err[] = 'You have failed the spambot check. Code 7';
+			die(json_encode($rtn));
 		}
 		
 		$rtn->success = true;

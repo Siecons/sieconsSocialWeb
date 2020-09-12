@@ -1,4 +1,10 @@
 <?php
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Geolocation class
  *
@@ -6,8 +12,6 @@
  *
  * @version 4.5.0
  */
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * ES_Geolocation Class.
@@ -134,7 +138,7 @@ class ES_Geolocation {
 	 * @since 4.5.0
 	 */
 	public static function get_countries_iso_code_name_map( $country_code = '' ) {
-		$countries_data = [
+		$countries_data = array(
 			'AF' => 'Afghanistan',
 			'AX' => 'Aland Islands',
 			'AL' => 'Albania',
@@ -380,7 +384,7 @@ class ES_Geolocation {
 			'YE' => 'Yemen',
 			'ZM' => 'Zambia',
 			'ZW' => 'Zimbabwe',
-		];
+		);
 
 		if ( isset( $countries_data[ $country_code ] ) ) {
 			return $countries_data[ $country_code ];

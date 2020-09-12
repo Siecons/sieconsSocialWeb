@@ -376,9 +376,11 @@ class Predic_Widget_Factory extends WP_Widget {
              */
             if ( isset( $new_instance[ $name ] ) ) {
                 
-                if ( strpos( $field['type'], 'textarea') !== false ) {
-                    $value = $this->validate_allowed_html_tags( $new_instance[ $name ] );
-                } else {
+                if( 'textarea' === $field['type'] ){
+                    $value = sanitize_textarea_field( $new_instance[ $name ] );
+                }elseif( 'url' === $field['type']  ){
+					$value = esc_url_raw( $new_instance[ $name ] );
+				}else {
                     $value = sanitize_text_field( $new_instance[ $name ] );
                 }
 

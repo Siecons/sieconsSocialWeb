@@ -691,7 +691,6 @@ class Actions
 				update_option('SGPB_NEWSLETTER_'.$subscriptionFormId, ++$successCount);
 			}
 		}
-
 		// Update the status of all the sent mails
 		$updateStatusQuery = $wpdb->prepare('UPDATE '.$wpdb->prefix.SGPB_SUBSCRIBERS_TABLE_NAME.' SET status = 1 where id >= %d and subscriptionType = %d limit %d', $currentStateEmailId, $subscriptionFormId, $emailsInFlow);
 		$wpdb->query($updateStatusQuery);
@@ -863,11 +862,11 @@ class Actions
 	/**
 	 * Check Popup is satisfy for popup condition
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param array $args
 	 *
-	 * @return bool
+	 * @return array
+	 *
+	 *@since 1.0.0
 	 *
 	 */
 	public function conditionsSatisfy($args = array())

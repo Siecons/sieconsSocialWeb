@@ -50,7 +50,7 @@
 				$fieldset.find('#broadcast_button').hide();
 
 				$('#content_menu').removeClass("active");
-    			$('#summary_menu').addClass("active");
+				$('#summary_menu').addClass("active");
 				//$('.active').removeClass('active').next().addClass('active');
 
 				// Trigger template content changed event to update email preview.
@@ -68,7 +68,7 @@
 				$fieldset.find('#broadcast_button1, #broadcast_button2').hide();
 
 				$('#summary_menu').removeClass("active");
-    			$('#content_menu').addClass("active");
+				$('#content_menu').addClass("active");
 				//$('.active').removeClass('active').prev().addClass('active');
 
 			});
@@ -76,7 +76,7 @@
 			$("input:radio[name='broadcast_data[scheduling_option]']").click(function() {
 
 				let scheduling_option = $(this).val();
-				if( 'schedule_later' === scheduling_option ) {
+				if ( 'schedule_later' === scheduling_option ) {
 					$('.display_schedule').removeClass('hidden');
 				} else {
 					$('.display_schedule').addClass('hidden');
@@ -121,8 +121,8 @@
 			jQuery('.es-audience-view .tablenav.bottom #bulk-action-selector-bottom').hide();
 			jQuery('.es-audience-view .tablenav.bottom #doaction2').hide();
 			jQuery(document).on('change', "#base_template_id", function () {
-				var img = jQuery('option:selected', this).data('img')
-				jQuery('.es-templ-img').html(img);
+				var img = jQuery('option:selected', this).data('img-url');
+				jQuery('.es-templ-img').html('<img src="' + img + '"/>');
 			});
 
 			//send test emails
@@ -171,7 +171,13 @@
 				params = jQuery(form).serializeArray();
 				params.push({
 					name: 'action',
-					value: 'es_klawoo_subscribe'
+					value: 'es_klawoo_subscribe',
+				});
+
+				// Add ajax security nonce.
+				params.push({
+					name: 'security',
+					value: ig_es_js_data.security,
 				});
 
 				jQuery.ajax({
@@ -242,11 +248,11 @@
 				var campaign_type = $(this).val();
 				$('#ig_es_filter_campaign_status_by_type').val('');
 				campaign_status(campaign_type);
-				});
+			});
 
 			function campaign_status( campaign_type ) {
 				var $status_id = $('#ig_es_filter_campaign_status_by_type');
- 				switch(campaign_type) {
+				switch (campaign_type) {
 					case 'newsletter':	
 						$status_id.children('option').show();
 						$('#ig_es_filter_campaign_status_by_type option[value="0"]').html('Draft').show();
@@ -272,7 +278,7 @@
 			$('#ig_es_broadcast_list_ids').change(function () {
 				var selected_list_id = $(this).val();
 
-				if( ! selected_list_id ) {
+				if ( ! selected_list_id ) {
 					jQuery('.ig_es_list_contacts_count').text(0);
 					return;
 				}
@@ -293,8 +299,8 @@
 						if (response !== '') {
 							response = JSON.parse(response);
 							if (response.hasOwnProperty('total')) {
-								var total = response.total;
-								var total_contacts_text = "<h2 class='text-sm font-normal text-gray-600'>Total Contacts: <span class='text-base font-medium text-gray-700'> <span class='ig_es_list_contacts_count'>" + total + "</span></span></h2>";
+								var total                 = response.total;
+								var total_contacts_text   = "<h2 class='text-sm font-normal text-gray-600'>Total Contacts: <span class='text-base font-medium text-gray-700'> <span class='ig_es_list_contacts_count'>" + total + "</span></span></h2>";
 								var total_recipients_text = "<div class='mt-1.5 py-2'><span class='font-medium text-base text-gray-700'><span class='ig_es_list_contacts_count'>" + total + "</span> <span class='text-base font-medium text-gray-700'></span><span class='font-normal text-sm text-gray-500'> recipients </span></div>";
 								$('#ig_es_total_contacts').html(total_contacts_text);
 								$('#ig_es_total_recipients').html(total_recipients_text);
@@ -344,7 +350,7 @@
 									jQuery('#es_utm_campaign').val(response.es_utm_campaign);
 								}
 
-								if( 1 === $('#edit-es-boradcast-body').length ) {
+								if ( 1 === $('#edit-es-boradcast-body').length ) {
 									tinyMCE.triggerSave();
 									$('#edit-es-boradcast-body').trigger('change');
 								}
@@ -401,7 +407,7 @@
 				let checkbox_elem       = $(this);
 				let campaign_id         = $(checkbox_elem).val();
 				let new_campaign_status = $(checkbox_elem).prop('checked') ? 1 : 0;
-				let data = {
+				let data                = {
 					action: 'ig_es_toggle_campaign_status',
 					campaign_id: campaign_id,
 					new_campaign_status: new_campaign_status,
@@ -431,15 +437,15 @@
 				let is_draft_bttuon = $(trigger_elem).hasClass('ig_es_draft_broadcast');
 
 				let broadcast_subject = $('#ig_es_broadcast_subject').val();
-				if( '' === broadcast_subject ) {
-					if( is_draft_bttuon ) {
+				if ( '' === broadcast_subject ) {
+					if ( is_draft_bttuon ) {
 						alert( ig_es_js_data.i18n_data.broadcast_subject_empty_message );
 					}
 					return;
 				}
 
 				// If draft button is clicked then change broadcast status to draft..
-				if( is_draft_bttuon ) {
+				if ( is_draft_bttuon ) {
 					$('#broadcast_status').val(0);
 				}
 
@@ -460,15 +466,15 @@
 					},
 					success: function (response) {
 						if (response.success) {
-							if( 'undefined' !== typeof response.data ) {
+							if ( 'undefined' !== typeof response.data ) {
 								let response_data = response.data;
 								let broadcast_id  = response_data.broadcast_id;
 								$('#broadcast_id').val( broadcast_id );
-								if( is_draft_bttuon ) {
+								if ( is_draft_bttuon ) {
 									alert( ig_es_js_data.i18n_data.broadcast_draft_success_message );
 								}
 							} else {
-								if( is_draft_bttuon ) {
+								if ( is_draft_bttuon ) {
 									alert( ig_es_js_data.i18n_data.broadcast_draft_error_message );
 								}
 							}
@@ -499,15 +505,15 @@
 					dataType: 'json',
 					success: function (response) {
 						if (response.success) {
-							if( 'undefined' !== typeof response.data ) {
-								let response_data = response.data;
-								let template_html  = response_data.template_html;
+							if ( 'undefined' !== typeof response.data ) {
+								let response_data     = response.data;
+								let template_html     = response_data.template_html;
 								let broadcast_subject = response_data.broadcast_subject;
-								let contact_name = response_data.contact_name;
-								let contact_email = response_data.contact_email;
+								let contact_name      = response_data.contact_name;
+								let contact_email     = response_data.contact_email;
 								$('.broadcast_preview_subject').html(broadcast_subject);
 								$('.broadcast_preview_contact_name').html(contact_name);
-								if( '' !== contact_email ) {
+								if ( '' !== contact_email ) {
 									$('.broadcast_preview_contact_email').html( '&lt;' + contact_email + '&gt;');
 								}
 								$('.broadcast_preview_content').html(template_html);
@@ -528,17 +534,17 @@
 
 				$(template_button).parent().find('.es-send-success').hide();
 				$(template_button).parent().find('.es-send-error').hide();
-				if( 'preview_in_popup' === preview_option ) {
+				if ( 'preview_in_popup' === preview_option ) {
 					ig_es_show_broadcast_preview_in_popup();
-				} else if( 'preview_in_email' === preview_option ) {
+				} else if ( 'preview_in_email' === preview_option ) {
 					ig_es_send_broadcast_preview_email();
 				}
 			});
 
 			$('#broadcast_form [name="preview_option"]').on('click',function(){
-				let preview_option  = $('[name="preview_option"]:checked').val();
+				let preview_option = $('[name="preview_option"]:checked').val();
 
-				if( 'preview_in_email' === preview_option ) {
+				if ( 'preview_in_email' === preview_option ) {
 					$('#es_test_send_email').show();
 				} else {
 					$('#es_test_send_email').hide();
@@ -558,14 +564,14 @@ function ig_es_show_broadcast_preview_in_popup() {
 	window.tinyMCE.triggerSave();
 
 	let content = jQuery('.wp-editor-boradcast').val();
-	if (jQuery("#wp-edit-es-boradcast-body-wrap").hasClass("tmce-active")){
+	if (jQuery("#wp-edit-es-boradcast-body-wrap").hasClass("tmce-active")) {
 		content = tinyMCE.activeEditor.getContent();
-	}else{
+	} else {
 		content = jQuery('.wp-editor-boradcast').val();
 	}
 
 
-	if( !content ){
+	if ( !content ) {
 		alert( ig_es_js_data.i18n_data.empty_template_message );
 		return;
 	}
@@ -582,9 +588,9 @@ function ig_es_show_broadcast_preview_in_popup() {
 		dataType: 'json',
 		success: function (response) {
 			if (response.success) {
-				if( 'undefined' !== typeof response.data ) {
+				if ( 'undefined' !== typeof response.data ) {
 					let response_data = response.data;
-					let template_html  = response_data.template_html;
+					let template_html = response_data.template_html;
 					jQuery('.broadcast_preview_container').html(template_html);
 					jQuery('#preview_template').load().show();
 				}
@@ -602,25 +608,25 @@ function ig_es_show_broadcast_preview_in_popup() {
 
 jQuery.fn.extend({
 	ig_es_select2: function() {
-	  return this.each(function() {
-		let multiselect_elem  = jQuery(this);
+		return this.each(function() {
+			let multiselect_elem = jQuery(this);
 
-		let first_option_elem      = jQuery(multiselect_elem).find('option:first');
-		let first_option_vallue    = jQuery(first_option_elem).attr('value');
-		let placeholder_label      = '';
+			let first_option_elem   = jQuery(multiselect_elem).find('option:first');
+			let first_option_vallue = jQuery(first_option_elem).attr('value');
+			let placeholder_label   = '';
 
-		if( '' === first_option_vallue || '0' === first_option_vallue ) {
+			if ( '' === first_option_vallue || '0' === first_option_vallue ) {
 
-			// Get placeholder label from the first option.
-			placeholder_label = jQuery(first_option_elem).text();
+				// Get placeholder label from the first option.
+				placeholder_label = jQuery(first_option_elem).text();
 	
-			// Remove it from option to avoid being shown and allowing users to select it as an option in Select2's options panel. 
-			jQuery(first_option_elem).remove();
-		}
+				// Remove it from option to avoid being shown and allowing users to select it as an option in Select2's options panel. 
+				jQuery(first_option_elem).remove();
+			}
 
-		jQuery(multiselect_elem).select2({
-			placeholder: placeholder_label, // Add placeholder label using first option's text.
+			jQuery(multiselect_elem).select2({
+				placeholder: placeholder_label, // Add placeholder label using first option's text.
+			});
 		});
-	  });
 	}
 });

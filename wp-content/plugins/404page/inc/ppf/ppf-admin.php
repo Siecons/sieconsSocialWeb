@@ -3,17 +3,17 @@
 /**
  * Admin Class
  *
- * Peter's Plugins Foundation 04
+ * Peter's Plugins Foundation 06
  *
- * @package    PPF04
+ * @package    PPF06
  * @author     Peter Raschendorfer
  * @license    GPL2+
  */
  
-if ( !class_exists( 'PPF04_Admin' ) ) {
+if ( !class_exists( 'PPF06_Admin' ) ) {
   
   
-  abstract class PPF04_Admin extends PPF04_SubClass {
+  abstract class PPF06_Admin extends PPF06_SubClass {
     
     
     /**
@@ -148,6 +148,8 @@ if ( !class_exists( 'PPF04_Admin' ) ) {
      *                         int    $order    => sort order
      *                                             this was added in PPF04, so we check if it exists for backwards compatibility
      *                         string $title    => title for section (used by print_setting_sections())
+     *                         string $icon     => icon for tab 
+     *                                             since PPF05
      *                         string $html     => HTML code to add to this section
      *                         array  $fields   => multidimensional array of fields to add
      *                                             string $key      => key of the option array
@@ -320,7 +322,14 @@ if ( !class_exists( 'PPF04_Admin' ) ) {
         
         $section_id = $this->core()->get_plugin_slug() . '-' . $section['section'];
         
-        echo '<li><div class="tabset' . $currentclass . '" id="tab-' . $section_id . '" data-tab-content="content-' . $section_id . '">' . $section['title'] . '</div>';
+        $iconclass = '';
+        
+        if ( isset( $section['icon'] ) ) {
+          
+            $iconclass = ' has-icon icon-' . $section['icon'];
+        }
+        
+        echo '<li><div class="tabset' . $currentclass . $iconclass . '" id="tab-' . $section_id . '" data-tab-content="content-' . $section_id . '">' . $section['title'] . '</div>';
         
         $currentclass = '';
         
@@ -339,6 +348,12 @@ if ( !class_exists( 'PPF04_Admin' ) ) {
      * @access public
      */
     public function sanitize_callback( $settings ) {
+      
+      // since PPF06
+      // if wen don't get anything we need to create an empty array
+      if ( empty( $settings ) ) {
+        $settings = array();
+      }
       
       foreach ( $this->settings()->get_defaults() as $key => $value ) {
         
@@ -414,16 +429,8 @@ if ( !class_exists( 'PPF04_Admin' ) ) {
       $this->_toolbar = '<nav>';
        
       foreach ( $icons as $icon ) {
-        
-        $extraclass = '';
-        
-        if ( isset( $icon['highlight'] ) && true === $icon['highlight'] ) {
-          
-          $extraclass = ' highlight';
-          
-        }
          
-        $this->_toolbar .= '<a href="' . esc_url( $icon['link'] ) . '" title="' . $icon['title'] . '"><span class="dashicons ' . $icon['icon'] . $extraclass . '"></span><span class="text">' . $icon['title'] . '</span></a>';
+        $this->_toolbar .= '<a href="' . esc_url( $icon['link'] ) . '" title="' . $icon['title'] . '"><span class="dashicons ' . $icon['icon'] . '"></span><span class="text">' . $icon['title'] . '</span></a>';
          
       }
       

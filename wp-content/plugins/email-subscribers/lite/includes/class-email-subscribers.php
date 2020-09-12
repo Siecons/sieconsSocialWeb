@@ -1,5 +1,4 @@
 <?php
-
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -36,6 +35,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 	 */
 	class Email_Subscribers {
 		/**
+		 * ES instance
 		 *
 		 * @since 4.2.1
 		 *
@@ -118,6 +118,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $tracker;
 
 		/**
+		 * Campaigns Object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|ES_Campaigns_Table
@@ -135,6 +137,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $campaigns_db;
 
 		/**
+		 * Lists Object
+		 *
 		 * @since 4.2.1
 		 * @var object|ES_Lists_Table
 		 *
@@ -142,6 +146,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $lists;
 
 		/**
+		 * Lists DB Object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|ES_DB_Lists
@@ -150,6 +156,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $lists_db;
 
 		/**
+		 * Forms Object
+		 *
 		 * @since 4.2.1
 		 * @var object|ES_Forms_Table
 		 *
@@ -157,6 +165,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $forms;
 
 		/**
+		 * Forms DB Object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|ES_DB_Forms
@@ -164,6 +174,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $forms_db;
 
 		/**
+		 * Contacts Object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|ES_Contacts_Table
@@ -171,6 +183,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $contacts;
 
 		/**
+		 * Contacts DB Object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|ES_DB_Contacts
@@ -178,6 +192,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $contacts_db;
 
 		/**
+		 * ES_DB_Blocked_Emails object
+		 *
 		 * @since 4.2.2
 		 *
 		 * @var object|ES_DB_Blocked_Emails
@@ -185,6 +201,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $blocked_emails_db;
 
 		/**
+		 * ES_DB_Links object
+		 *
 		 * @since 4.2.4
 		 *
 		 * @var object|ES_DB_Links
@@ -192,6 +210,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $links_db;
 
 		/**
+		 * ES_DB_Lists_Contacts object
+		 *
 		 * @since 4.3.5
 		 *
 		 * @var object|ES_DB_Lists_Contacts
@@ -199,6 +219,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $lists_contacts_db;
 
 		/**
+		 * ES_Integrations object
 		 *
 		 * @since 4.2.1
 		 *
@@ -208,6 +229,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $integrations;
 
 		/**
+		 * IG_Logger object
+		 *
 		 * @since 4.2.1
 		 *
 		 * @var object|IG_Logger
@@ -216,6 +239,8 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		public $logger;
 
 		/**
+		 * ES_Mailer object
+		 *
 		 * @since 4.3.1
 		 *
 		 * @var object|ES_Mailer
@@ -227,7 +252,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * the plugin.
 		 *
 		 * @since    4.0
-		 * @access   protected
+		 *
 		 * @var      Email_Subscribers_Loader $loader Maintains and registers all hooks for the plugin.
 		 */
 		protected $loader;
@@ -236,7 +261,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * The unique identifier of this plugin.
 		 *
 		 * @since    4.0
-		 * @access   protected
+		 *
 		 * @var      string $email_subscribers The string used to uniquely identify this plugin.
 		 */
 		protected $email_subscribers;
@@ -245,12 +270,14 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * The current version of the plugin.
 		 *
 		 * @since    4.0
-		 * @access   protected
+		 *
 		 * @var      string $version The current version of the plugin.
 		 */
 		protected $version;
 
 		/**
+		 * ES_DB_Workflows object
+		 *
 		 * @since 4.4.0
 		 *
 		 * @var object|ES_DB_Workflows
@@ -293,7 +320,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 			$is_onboarding_complete = get_option( 'ig_es_onboarding_complete', false );
 
 			// We don't have ig_es_onboarding_complete option if somebody is migrating from older version
-			if ( ( 'toplevel_page_es_dashboard' === $screen_id ) && ( ! $is_onboarding_complete || $is_onboarding_complete == 'no' ) ) {
+			if ( ( 'toplevel_page_es_dashboard' === $screen_id ) && ( ! $is_onboarding_complete || 'no' == $is_onboarding_complete ) ) {
 				return;
 			}
 
@@ -303,19 +330,28 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 			$show_notice = true;
 			$show_notice = apply_filters( 'ig_es_show_wp_cron_notice', $show_notice );
 
-			if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON && $notice_option != 'yes' && $show_notice ) {
-				$es_cron_url            = 'https://www.icegram.com/documentation/how-to-enable-the-wordpress-cron/?utm_medium=enable_wordpress_cron&utm_source=in_app&utm_campaign=view_admin_notice';
-				$cpanel_url             = 'https://www.icegram.com/documentation/es-how-to-schedule-cron-emails-in-cpanel/?utm_source=schedule_cron_in_cpanel&utm_medium=in_app&utm_campaign=view_admin_notice';
-				$es_pro_url             = 'https://www.icegram.com/documentation/es-how-to-schedule-cron-emails-in-cpanel/?utm_source=schedule_cron_in_cpanel&utm_medium=in_app&utm_campaign=view_admin_notice';
-				$disable_wp_cron_notice = sprintf( __( 'WordPress Cron is disabled on your site. Email notifications from Email Subscribers plugin will not be sent automatically. <a href="%s" target="_blank" >Here\'s how you can enable it.</a>', 'email-subscribers' ), $es_cron_url );
-				$disable_wp_cron_notice .= '<br/>' . sprintf( __( 'Or schedule Cron in <a href="%s" target="_blank">cPanel</a>', 'email-subscribers' ), $cpanel_url );
-				$disable_wp_cron_notice .= '<br/>' . sprintf( __( 'Or use <strong><a href="%s" target="_blank">Email Subscribers Pro</a></strong> for automatic Cron support', 'email-subscribers' ), $es_pro_url );
-				$html                   = '<div class="notice notice-warning" style="background-color: #FFF;"><p style="letter-spacing: 0.6px;">' . $disable_wp_cron_notice . '<a style="float:right" class="es-admin-btn es-admin-btn-secondary " href="' . admin_url() . '?es_dismiss_admin_notice=1&option_name=wp_cron_notice">' . __( 'OK, I Got it!',
-						'email-subscribers' ) . '</a></p></div>';
-				$args['html']           = $html;
-				ES_Admin_Notices::add_custom_notice( 'show_wp_cron', $args );
-			}
+			// If DISABLE_WP_CRON constant is defined and set to true, then we can say that wp cron is disabled.
+			$wp_cron_disabled = ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) ? true : false;
 
+			// Add notice only if wp cron is disabled and user have not acknowledged the notice by clicking on the acknowledgement button in the notice.
+			if ( $wp_cron_disabled && 'yes' != $notice_option && $show_notice ) {
+				$es_cron_url = 'https://www.icegram.com/documentation/how-to-enable-the-wordpress-cron/?utm_medium=enable_wordpress_cron&utm_source=in_app&utm_campaign=view_admin_notice';
+				$cpanel_url  = 'https://www.icegram.com/documentation/es-how-to-schedule-cron-emails-in-cpanel/?utm_source=schedule_cron_in_cpanel&utm_medium=in_app&utm_campaign=view_admin_notice';
+				$es_pro_url  = 'https://www.icegram.com/documentation/es-how-to-schedule-cron-emails-in-cpanel/?utm_source=schedule_cron_in_cpanel&utm_medium=in_app&utm_campaign=view_admin_notice';
+				/* translators: %s: Cron URL */
+				$disable_wp_cron_notice = sprintf( __( 'WordPress Cron is disabled on your site. Email notifications from Email Subscribers plugin will not be sent automatically. <a href="%s" target="_blank" >Here\'s how you can enable it.</a>', 'email-subscribers' ), $es_cron_url );
+				/* translators: %s: Link to Cpanel URL */
+				$disable_wp_cron_notice .= '<br/>' . sprintf( __( 'Or schedule Cron in <a href="%s" target="_blank">cPanel</a>', 'email-subscribers' ), $cpanel_url );
+				/* translators: %s: ES Pro URL */
+				$disable_wp_cron_notice .= '<br/>' . sprintf( __( 'Or use <strong><a href="%s" target="_blank">Email Subscribers Pro</a></strong> for automatic Cron support', 'email-subscribers' ), $es_pro_url );
+				$html                    = '<div class="notice notice-warning" style="background-color: #FFF;"><p style="letter-spacing: 0.6px;">' . $disable_wp_cron_notice . '<a style="float:right" class="es-admin-btn es-admin-btn-secondary " href="' . admin_url() . '?es_dismiss_admin_notice=1&option_name=wp_cron_notice">' . __( 'OK, I Got it!',
+						'email-subscribers' ) . '</a></p></div>';
+				$args['html']            = $html;
+				ES_Admin_Notices::add_custom_notice( 'show_wp_cron', $args );
+			} else {
+				// Remove the notice if user hasn't disabled the WP CRON or renabled the WP CRON.
+				ES_Admin_Notices::remove_notice( 'show_wp_cron' );
+			}
 		}
 
 		/**
@@ -541,7 +577,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 *
 		 * @since 4.2.0
 		 */
-		function define( $constant, $value ) {
+		public function define( $constant, $value ) {
 			if ( ! defined( $constant ) ) {
 				define( $constant, $value );
 			}
@@ -561,7 +597,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * with WordPress.
 		 *
 		 * @since    4.0
-		 * @access   private
+		 * 
 		 */
 		private function load_dependencies() {
 
@@ -818,7 +854,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * of the plugin.
 		 *
 		 * @since    4.0
-		 * @access   private
+		 * 
 		 */
 		private function define_admin_hooks() {
 
@@ -842,7 +878,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 * of the plugin.
 		 *
 		 * @since    4.0
-		 * @access   private
+		 * 
 		 */
 		private function define_public_hooks() {
 
@@ -971,10 +1007,10 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 			$prefix = sanitize_title( __( 'Email Subscribers', 'email-subscribers' ) );
 
 			$screens = array(
-				"es_template",
-				"edit-es_template",
-				"toplevel_page_es_dashboard",
-				"admin_page_go_to_icegram",
+				'es_template',
+				'edit-es_template',
+				'toplevel_page_es_dashboard',
+				'admin_page_go_to_icegram',
 				"{$prefix}_page_es_subscribers",
 				"{$prefix}_page_es_lists",
 				"{$prefix}_page_es_forms",
@@ -1075,9 +1111,9 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 			$error = error_get_last();
 			if ( in_array( $error['type'], array( E_ERROR, E_PARSE, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR ), true ) ) {
 				$logger = get_ig_logger();
-
 				$logger->critical(
-					sprintf( __( '%1$s in %2$s on line %3$s', 'email-subscribers' ), $error['message'], $error['file'], $error['line'] ) . PHP_EOL,
+					/* translators: 1: Error message 2: File name  3: Line number */
+					sprintf( esc_html__( '%1$s in %2$s on line %3$s', 'email-subscribers' ), $error['message'], $error['file'], $error['line'] ) . PHP_EOL,
 					array(
 						'source' => 'fatal-errors',
 					)
@@ -1096,7 +1132,9 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 		 */
 		public static function instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Email_Subscribers ) ) {
-				global $ig_es_feedback;
+				global $wpdb, $ig_es_feedback, $wpbd;
+
+				$wpbd = $wpdb;
 
 				self::$instance = new Email_Subscribers();
 
@@ -1114,7 +1152,7 @@ if ( ! class_exists( 'Email_Subscribers' ) ) {
 
 				self::$instance->logger = get_ig_logger();
 
-				self::$instance->mailer      = new ES_Mailer();
+				self::$instance->mailer = new ES_Mailer();
 
 				add_action( 'widgets_init', array( self::$instance, 'register_es_widget' ) );
 

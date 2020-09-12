@@ -23,8 +23,8 @@ class ES_Common {
 	 * @since 4.0
 	 */
 	public static function convert_es_templates( $template, $name, $email, $es_templ_id = 0 ) {
-		$convert_template = str_replace( "{{NAME}}", $name, $template );
-		$convert_template = str_replace( "{{EMAIL}}", $email, $convert_template );
+		$convert_template = str_replace( '{{NAME}}', $name, $template );
+		$convert_template = str_replace( '{{EMAIL}}', $email, $convert_template );
 
 		return $convert_template;
 	}
@@ -54,13 +54,13 @@ class ES_Common {
 		$content             = $data['content'];
 		//total contacts
 		$total_contacts = ES()->contacts_db->count_active_contacts_by_list_id();
-		$content        = str_replace( "{{TOTAL-CONTACTS}}", $total_contacts, $content );
+		$content        = str_replace( '{{TOTAL-CONTACTS}}', $total_contacts, $content );
 		//blog title
 		$blog_name = get_option( 'blogname' );
-		$content   = str_replace( "{{SITENAME}}", $blog_name, $content );
+		$content   = str_replace( '{{SITENAME}}', $blog_name, $content );
 		// site url
 		$site_url = home_url( '/' );
-		$content  = str_replace( "{{SITEURL}}", $site_url, $content );
+		$content  = str_replace( '{{SITEURL}}', $site_url, $content );
 
 		/*TODO: Enable it once Pre header issue fix
 		$meta = ES()->campaigns_db->get_campaign_meta_by_id( $campaign_id );
@@ -115,38 +115,38 @@ class ES_Common {
 
 		$post_link = get_permalink( $post_ID );
 		// Check if current URL is same as current post's permalink.
-		if( ! empty( $post_link ) && $url === $post_link ) {
+		if ( ! empty( $post_link ) && $url === $post_link ) {
 			// Convert URL HTML back to URL itself if it a current post URL.
 			$html = $url;
 		} else {
-			if( ! class_exists( 'WP_oEmbed' ) ) {
-				require_once( ABSPATH . 'wp-includes/class-wp-oembed.php' );
+			if ( ! class_exists( 'WP_oEmbed' ) ) {
+				require_once  ABSPATH . 'wp-includes/class-wp-oembed.php' ;
 			}
 
 			$oembed   = new WP_oEmbed();
 			$provider = $oembed->discover( $url );
 			
-			if( ! empty( $provider ) ) {
+			if ( ! empty( $provider ) ) {
 				$oembed_response = $oembed->fetch( $provider, $url, $attr );
-				if( is_object( $oembed_response ) && ! empty( $oembed_response->type ) && 'video' === $oembed_response->type ) {
+				if ( is_object( $oembed_response ) && ! empty( $oembed_response->type ) && 'video' === $oembed_response->type ) {
 					$thumbnail_url = $oembed_response->thumbnail_url;
-					if( ! empty( $thumbnail_url ) ) {
+					if ( ! empty( $thumbnail_url ) ) {
 						$title         = $oembed_response->title;
 						$provider_name = $oembed_response->provider_name;
 						$play_icon_url = '';
 
-						switch( $provider_name ) {
+						switch ( $provider_name ) {
 							case 'YouTube':
 								$play_icon_url = ES_PLUGIN_URL . 'lite/public/images/youtube-play-button.png';
-							break;
+								break;
 							
 							case 'Vimeo':
 								$play_icon_url = ES_PLUGIN_URL . 'lite/public/images/vimeo-play-button.png';
-							break;
+								break;
 
 							default:
 								$play_icon_url = ES_PLUGIN_URL . 'lite/public/images/default-play-button.png';
-							break;
+								break;
 						}
 
 						ob_start();
@@ -221,13 +221,13 @@ class ES_Common {
 
 		$dropdown = '';
 		foreach ( $statuses as $key => $status ) {
-			$dropdown .= "<option class='text-sm' value='{$key}'";
+			$dropdown .= '<option class="text-sm" value="' . esc_attr( $key ) . '" ';
 
 			if ( strtolower( $selected ) === strtolower( $key ) ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= 'selected = selected';
 			}
 
-			$dropdown .= ">{$status}</option>";
+			$dropdown .= '>' . esc_html( $status ) . '</option>';
 		}
 
 		return $dropdown;
@@ -247,35 +247,37 @@ class ES_Common {
 
 		$default_option[0] = __( $default_label, 'email-subscribers' );
 
-		$lists = ES()->lists_db->get_list_id_name_map();
-		$lists = $default_option + $lists;
+		$lists    = ES()->lists_db->get_list_id_name_map();
+		$lists    = $default_option + $lists;
 		$dropdown = '';
 
-		if( is_string( $selected ) && strpos( $selected, ',' ) > 0 ) {
+		if ( is_string( $selected ) && strpos( $selected, ',' ) > 0 ) {
 			$selected = explode( ',', $selected );
 		}
 		
 		foreach ( $lists as $key => $list ) {
 
-			$dropdown .= "<option value='{$key}'";
+			$dropdown .= '<option value="' . esc_attr( $key ) . '" ';
 
-			if( is_array( $selected ) ) {
-				if( in_array( $key, $selected ) ) {
-					$dropdown .= "selected = selected";
+			if ( is_array( $selected ) ) {
+				if ( in_array( $key, $selected ) ) {
+					$dropdown .= 'selected = selected';
 				}
 			} else {
 				if ( ! empty( $selected ) && $selected == $key ) {
-					$dropdown .= "selected = selected";
+					$dropdown .= 'selected = selected';
 				}
 			}
 
-			$dropdown .= ">{$list}</option>";
+			$dropdown .= '>' . esc_html( $list ) . '</option>';
 		}
 
 		return $dropdown;
 	}
 
 	/**
+	 * Prepare dropdown with form names
+	 *
 	 * @param string $selected
 	 * @param string $default_label
 	 *
@@ -295,13 +297,13 @@ class ES_Common {
 
 		$dropdown = '';
 		foreach ( $forms as $key => $form ) {
-			$dropdown .= "<option value='{$key}'";
+			$dropdown .= '<option value="' . esc_attr( $key ) . '" ';
 
 			if ( $selected == $key ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= 'selected = selected';
 			}
 
-			$dropdown .= ">{$form}</option>";
+			$dropdown .= '>' . esc_html( $form ) . '</option>';
 		}
 
 		return $dropdown;
@@ -348,7 +350,7 @@ class ES_Common {
 		$default_template_option = array( $default_template_option );
 
 		$templates = self::get_templates( $type );
-
+		$allowedtags = ig_es_allowed_html_tags_in_esc();
 		if ( is_array( $templates ) ) {
 			$templates = array_merge( $default_template_option, $templates );
 		}
@@ -356,14 +358,14 @@ class ES_Common {
 
 		$dropdown = '';
 		foreach ( $templates as $key => $template ) {
-			$es_templ_thumbnail = ( ! empty( $template->ID ) ) ? get_the_post_thumbnail( $template->ID, array( '200', '200' ) ) : '<img src="' . ES_PLUGIN_URL . 'images/envelope.png" />';
-			$dropdown           .= "<option data-img='" . $es_templ_thumbnail . "' value='{$template->ID}'";
+			$es_templ_thumbnail = ( ! empty( $template->ID ) ) ? get_the_post_thumbnail_url( $template->ID, array( '200', '200' ) ) :  ES_PLUGIN_URL . 'images/envelope.png';
+			$dropdown           .= "<option data-img-url='" . $es_templ_thumbnail . "' value='" . $template->ID . "'";
 
 			if ( absint( $selected ) === absint( $template->ID ) ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= ' selected="selected"';
 			}
 
-			$dropdown .= ">{$template->post_title}</option>";
+			$dropdown .= '>' . $template->post_title . '</option>';
 		}
 
 		return $dropdown;
@@ -387,13 +389,13 @@ class ES_Common {
 
 		$dropdown = '';
 		foreach ( $statuses as $key => $status ) {
-			$dropdown .= "<option value='{$key}'";
+			$dropdown .= '<option value="' . esc_attr( $key ) . '" ';
 
 			if ( strtolower( $selected ) === strtolower( $key ) ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= 'selected = selected';
 			}
 
-			$dropdown .= ">{$status}</option>";
+			$dropdown .= '>' . esc_html( $status ) . '</option>';
 		}
 
 		return $dropdown;
@@ -450,20 +452,20 @@ class ES_Common {
 			$category_names = array();
 		}
 		$checked_selected = ! in_array( 'All', $category_names ) ? "checked='checked'" : '';
-		$category_html    = '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;" ><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input class="es-note-category-parent form-radio text-indigo-600" type="radio" ' . $checked_selected . ' value="selected_cat"  name="es_note_cat_parent">' . __( 'Select Categories',
+		$category_html    = '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;" ><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input class="es-note-category-parent form-radio text-indigo-600" type="radio" ' . esc_attr( $checked_selected ) . ' value="selected_cat"  name="es_note_cat_parent">' . __( 'Select Categories',
 				'email-subscribers' ) . '</td></tr>';
 		foreach ( $categories as $category ) {
 
 			if ( in_array( $category->term_id, $category_names ) ) {
 				$checked = "checked='checked'";
 			} else {
-				$checked = "";
+				$checked = '';
 			}
 
-			$category_html .= '<tr class="es-note-child-category"><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input type="checkbox" class="form-checkbox" ' . $checked . ' value="' . $category->term_id . '" id="es_note_cat[]" name="es_note_cat[]">' . $category->name . '</td></tr>';
+			$category_html .= '<tr class="es-note-child-category"><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input type="checkbox" class="form-checkbox" ' . esc_attr( $checked ) . ' value="' . esc_attr( $category->term_id ) . '" id="es_note_cat[]" name="es_note_cat[]">' . esc_html( $category->name ) . '</td></tr>';
 		}
 		$checked_all = in_array( 'All', $category_names ) ? "checked='checked'" : '';
-		$all_html    = '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input type="radio" class="form-radio text-indigo-600 es-note-category-parent"  ' . $checked_all . ' value="{a}All{a}"  name="es_note_cat_parent">' . __( 'All Categories (Also include all categories which will create later)',
+		$all_html    = '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-6 pr-4 text-sm font-normal text-gray-600 pb-1"><input type="radio" class="form-radio text-indigo-600 es-note-category-parent"  ' . esc_attr( $checked_all ) . ' value="{a}All{a}"  name="es_note_cat_parent">' . __( 'All Categories (Also include all categories which will create later)',
 				'email-subscribers' ) . '</td></tr>';
 
 		return $all_html . $category_html;
@@ -490,9 +492,9 @@ class ES_Common {
 				if ( is_array( $custom_post_types ) && in_array( $post_type_search, $custom_post_types ) ) {
 					$checked = "checked='checked'";
 				} else {
-					$checked = "";
+					$checked = '';
 				}
-				$custom_post_type_html .= '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-12 pr-4 text-sm font-medium text-gray-600 pb-2"><input type="checkbox" ' . $checked . ' value="{T}' . $post_type . '{T}" id="es_note_cat[]" class="es_custom_post_type form-checkbox" name="es_note_cat[]">' . $post_type . '</td></tr>';
+				$custom_post_type_html .= '<tr><td style="padding-top:4px;padding-bottom:4px;padding-right:10px;"><span class="block ml-12 pr-4 text-sm font-medium text-gray-600 pb-2"><input type="checkbox" ' . esc_attr( $checked ) . ' value="{T}' . esc_html( $post_type ) . '{T}" id="es_note_cat[]" class="es_custom_post_type form-checkbox" name="es_note_cat[]">' . esc_html( $post_type ) . '</td></tr>';
 			}
 
 		} else {
@@ -613,7 +615,7 @@ class ES_Common {
 		$categories_str = '';
 
 		if ( is_array( $categories ) && count( $categories ) > 0 ) {
-			$categories_str = "##" . implode( '##', $categories ) . "##";
+			$categories_str = '##' . implode( '##', $categories ) . '##';
 			$categories_str = wp_specialchars_decode( $categories_str, ENT_QUOTES );
 		}
 
@@ -655,7 +657,7 @@ class ES_Common {
 	 * @since 4.1.0
 	 */
 	public static function convert_id_to_name( $category ) {
-		if ( $category != 'All' ) {
+		if ( 'All' != $category ) {
 			return get_cat_name( $category );
 		} else {
 			return $category;
@@ -693,7 +695,7 @@ class ES_Common {
 	public static function prepare_category_string( $category = '' ) {
 		$category_str = '';
 		if ( ! empty( $category ) ) {
-			$category_str = "##" . $category . "##";
+			$category_str = '##' . $category . '##';
 		}
 
 		return $category_str;
@@ -711,7 +713,7 @@ class ES_Common {
 	public static function prepare_custom_post_type_string( $post_type = '' ) {
 		$post_type_str = '';
 		if ( ! empty( $post_type ) ) {
-			$post_type_str = "##{T}" . $post_type . "{T}##";
+			$post_type_str = '##{T}' . $post_type . '{T}##';
 		}
 
 		return $post_type_str;
@@ -811,7 +813,6 @@ class ES_Common {
 		 * Option - 1 -> ES < 3.x email-subscribers
 		 * Option - 2 -> ES < 4.0.4 email_subscriber_widget
 		 * Option - 3 -> ES > 4.0.5 email-subscribers-form
-		 *
 		 *
 		 *   - Fetch Option 1 from options table
 		 *   - Create a form
@@ -984,8 +985,9 @@ class ES_Common {
 		if ( $is_dismissible ) {
 			$class .= ' is-dismissible';
 		}
+		/* translators: 1: Class name 2: Message */
+		echo sprintf( '<div class="%s"><p>%s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
 
-		echo "<div class='{$class}'><p>{$message}</p></div>";
 	}
 
 	/**
@@ -1007,17 +1009,22 @@ class ES_Common {
 			$is_imp          = ! empty( $navigation['is_imp'] ) ? $navigation['is_imp'] : false;
 			?>
 
-            <a href="<?php echo $url; ?>" class="ig-es-title-button px-2 py-2 mx-2<?php if ( $is_imp ) {
-				echo " ig-es-imp-button";
-			} ?>"><?php echo $action_label; ?>
+			<a href="<?php echo esc_url( $url ); ?>" class="ig-es-title-button ml-2
+								<?php 
+								if ( $is_imp ) {
+									echo esc_attr( ' ig-es-imp-button' );
+								} 
+								?>
+			"><?php echo esc_html( $action_label ); ?>
 				<?php if ( $show_indicator ) { ?>
-                    <span class="ig-es-indicator <?php echo $indicator_class; ?>">
-                                <?php echo $indicator_label ?>
-                            </span>
+					<span class="ig-es-indicator <?php echo esc_attr( $indicator_class ); ?>">
+								<?php echo esc_html( $indicator_label ); ?>
+							</span>
 
 				<?php } ?>
-            </a>
-		<?php }
+			</a>
+			<?php 
+		}
 	}
 
 	/**
@@ -1060,18 +1067,18 @@ class ES_Common {
 
 		?>
 
-        <div class="<?php echo $div_class; ?>">
-            <div class="ig-vertical-align">
+		<div class="<?php echo esc_attr( $div_class ); ?>">
+			<div class="ig-vertical-align">
 				<?php if ( $show_icon ) { ?>
-                    <div class="ig-es-icon text-center">
-                        <span class="dashicons ig-es-icon-<?php echo $type; ?>"></span>
-                    </div>
+					<div class="ig-es-icon text-center">
+						<span class="dashicons ig-es-icon-<?php echo esc_attr( $type ); ?>"></span>
+					</div>
 				<?php } ?>
-                <div class="ig-es-info-message">
-					<?php echo $content_html; ?>
-                </div>
-            </div>
-        </div>
+				<div class="ig-es-info-message">
+					<?php echo wp_kses_post( $content_html ); ?>
+				</div>
+			</div>
+		</div>
 
 		<?php
 	}
@@ -1162,9 +1169,8 @@ class ES_Common {
 
 		global $wpdb;
 
-		$query = "SELECT option_name, option_value FROM {$wpdb->prefix}options WHERE option_name LIKE 'ig_es_%' AND option_name != 'ig_es_managed_blocked_domains' ";
-
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		$option_name_like = 'ig_es_%';
+		$results = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->prefix}options WHERE option_name LIKE %s  AND option_name != %s", $option_name_like, 'ig_es_managed_blocked_domains' ), ARRAY_A );
 
 		$options_name_value_map = array();
 		if ( count( $results ) > 0 ) {
@@ -1240,7 +1246,7 @@ class ES_Common {
 		$email_sent_data_option = 'email_sent_data';
 
 		//Get total emails sent in this hour
-		$email_sent_data = ES_Common::get_ig_option( $email_sent_data_option, array() );
+		$email_sent_data = self::get_ig_option( $email_sent_data_option, array() );
 
 		$total_emails_sent = 0;
 		$data              = array();
@@ -1248,11 +1254,11 @@ class ES_Common {
 			$total_emails_sent = $email_sent_data[ $current_date ][ $current_hour ];
 		}
 
-		$total_emails_sent += 1;
+		$total_emails_sent++;
 		// We want to store only current hour data.
 		$data[ $current_date ][ $current_hour ] = $total_emails_sent;
 
-		ES_Common::set_ig_option( $email_sent_data_option, $data );
+		self::set_ig_option( $email_sent_data_option, $data );
 
 	}
 
@@ -1277,12 +1283,12 @@ class ES_Common {
 
 		$can_access = $user->has_cap( $default_permission );
 
-		// Is Admin? Have full access
+		// Is Admin? Have full access.
 		if ( $can_access ) {
 			return true;
 		}
 
-		// We are using this filter in ES Premium to check permission
+		// We are using this filter in ES Premium to check permission.
 		return apply_filters( 'ig_es_can_access', $can_access, $page );
 
 	}
@@ -1516,16 +1522,16 @@ class ES_Common {
 
 		$campaign_type = self::get_campaign_type_key_name_map();
 
-		$dropdown = '<option class="text-sm" value="">All Types</option>';
+		$dropdown = '<option class="text-sm" value="">' . esc_html__( 'All Types', 'email-subscribers' ) . '</option>';
 		foreach ( $campaign_type as $key => $type ) {
 
-			$dropdown .= "<option class='text-sm' value='{$key}'";
+			$dropdown .= '<option value="' . esc_attr( $key ) . '" ';
 
 			if ( strtolower( $selected ) === strtolower( $key ) ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= 'selected = selected';
 			}
 
-			$dropdown .= ">{$type}</option>";
+			$dropdown .= '>' . esc_html( $type ) . '</option>';
 		}
 
 		return $dropdown;
@@ -1572,17 +1578,17 @@ class ES_Common {
 
 		$statuses = self::get_campaign_statuses_key_name_map();
 
-		$dropdown = '<option class="text-sm" value="">All Statuses</option>';
+		$dropdown = '<option class="text-sm" value="">' . esc_html__( 'All Statuses', 'email-subscribers' ) . '</option>';
 
 		foreach ( $statuses as $key => $status ) {
 
-			$dropdown .= "<option class='text-sm' value='{$key}'";
+			$dropdown .= '<option class="text-sm" value="' . esc_attr( $key ) . '" ';
 
 			if ( strtolower( $selected ) === strtolower( $key ) ) {
-				$dropdown .= "selected = selected";
+				$dropdown .= 'selected = selected';
 			}
 
-			$dropdown .= ">{$status}</option>";
+			$dropdown .= '>' . esc_html( $status ) . '</option>';
 		}
 
 		return $dropdown;
@@ -1631,7 +1637,7 @@ class ES_Common {
 			self::update_coupon_data( $coupon );
 		}
 		return $can_show;
-        */
+		*/
 	}
 
 	/**
@@ -1644,9 +1650,11 @@ class ES_Common {
 	public static function update_coupon_data( $coupon ) {
 		$coupons = get_option( 'ig_es_coupons', array() );
 
+		$shown_count = ! empty( $coupons[ $coupon ]['count'] ) ? $coupons[ $coupon ]['count'] : 0;
+
 		$coupons[ $coupon ] = array(
 			'last_shown_time' => time(),
-			'count'           => $coupons[ $coupon ]['count'] + 1
+			'count'           => $shown_count + 1
 		);
 
 		update_option( 'ig_es_coupons', $coupons );

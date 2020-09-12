@@ -32,7 +32,6 @@ class Email_Subscribers_Admin {
 	 * The ID of this plugin.
 	 *
 	 * @since    4.0
-	 * @access   private
 	 * @var      string $email_subscribers The ID of this plugin.
 	 */
 	private $email_subscribers;
@@ -41,7 +40,6 @@ class Email_Subscribers_Admin {
 	 * The version of this plugin.
 	 *
 	 * @since    4.0
-	 * @access   private
 	 * @var      string $version The current version of this plugin.
 	 */
 	private $version;
@@ -62,7 +60,8 @@ class Email_Subscribers_Admin {
 
 		// Reorder ES Submenu
 
-		add_filter( 'custom_menu_order', array( $this, 'submenu_order' ) );
+		// Commenting out since we are now registering the submenus in the order required. Therefore no need to change the submenu order later on.
+		//add_filter( 'custom_menu_order', array( $this, 'submenu_order' ) );
 
 		add_action( 'admin_menu', array( $this, 'email_subscribers_admin_menu' ) );
 		add_action( 'wp_ajax_es_klawoo_subscribe', array( $this, 'klawoo_subscribe' ) );
@@ -74,6 +73,8 @@ class Email_Subscribers_Admin {
 		add_action( 'wp_ajax_ig_es_toggle_campaign_status', array( $this, 'toggle_campaign_status' ) );
 
 		add_action( 'admin_init', array( $this, 'ob_start' ) );
+		
+		add_action( 'init', array( $this, 'save_screen_option' ) );
 	}
 
 	/**
@@ -101,7 +102,7 @@ class Email_Subscribers_Admin {
 
 		wp_enqueue_style( $this->email_subscribers, plugin_dir_url( __FILE__ ) . 'css/email-subscribers-admin.css', array(), $this->version, 'all' );
 
-		wp_register_style( $this->email_subscribers . '-timepicker', plugin_dir_url( __FILE__ ) . 'css/jquery.timepicker.css' );
+		wp_register_style( $this->email_subscribers . '-timepicker', plugin_dir_url( __FILE__ ) . 'css/jquery.timepicker.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->email_subscribers . '-timepicker' );
 
 		wp_enqueue_style( 'ig-es-style', plugin_dir_url( __FILE__ ) . 'dist/main.css', array(), $this->version, 'all' );
@@ -148,15 +149,16 @@ class Email_Subscribers_Admin {
 			wp_enqueue_script( $this->email_subscribers . '-workflows', plugin_dir_url( __FILE__ ) . 'js/ig-es-workflows.js', array( 'jquery', 'jquery-ui-datepicker' ), $this->version, false );
 
 			$workflows_data = array(
-				'security'               => wp_create_nonce( 'ig-es-workflow-nonce' ),
-				'no_trigger_message'     => __( 'Please select a trigger before saving the workflow.', 'email-subscribers' ),
-				'no_actions_message'     => __( 'Please add some actions before saving the workflow.', 'email-subscribers' ),
-				'trigger_change_message' => __( 'Changing the trigger will remove existing actions. Do you want to proceed anyway?.', 'email-subscribers' ),
+				'security'                   => wp_create_nonce( 'ig-es-workflow-nonce' ),
+				'no_trigger_message'         => __( 'Please select a trigger before saving the workflow.', 'email-subscribers' ),
+				'no_actions_message'         => __( 'Please add some actions before saving the workflow.', 'email-subscribers' ),
+				'no_action_selected_message' => __( 'Please select an action that this workflow should perform before saving the workflow.', 'email-subscribers' ),
+				'trigger_change_message'     => __( 'Changing the trigger will remove existing actions. Do you want to proceed anyway?.', 'email-subscribers' ),
 			);
 
 			wp_localize_script( $this->email_subscribers . '-workflows', 'ig_es_workflows_data', $workflows_data );
 
-			if( ! function_exists( 'ig_es_wp_js_editor_admin_scripts' ) ) {
+			if ( ! function_exists( 'ig_es_wp_js_editor_admin_scripts' ) ) {
 				/**
 				 * Include WP JS Editor library's main file. This file contains required functions to enqueue required js file which being used to create WordPress editor dynamcially.
 				 */
@@ -182,67 +184,65 @@ class Email_Subscribers_Admin {
 	public function remove_submenu() {
 		//remove submenues
 		?>
-        <script type="text/javascript">
+		<script type="text/javascript">
 			jQuery(document).ready(function () {
 				var removeSubmenu = ['ig-es-broadcast', 'ig-es-lists', 'ig-es-post-notifications', 'ig-es-sequence'];
 				jQuery.each(removeSubmenu, function (key, id) {
 					jQuery("#" + id).parent('a').parent('li').hide();
 				});
 			})
-        </script>
+		</script>
 		<?php
 	}
-
+	
 	public function email_subscribers_admin_menu() {
-
+		
 		$accessible_sub_menus = ES_Common::ig_es_get_accessible_sub_menus();
-
+		
 		if ( count( $accessible_sub_menus ) > 0 ) {
 			// This adds the main menu page
 			add_menu_page( __( 'Email Subscribers', 'email-subscribers' ), __( 'Email Subscribers', 'email-subscribers' ), 'edit_posts', 'es_dashboard', array( $this, 'es_dashboard_callback' ), 'dashicons-email', 30 );
-
+			
 			// Submenu
 			add_submenu_page( 'es_dashboard', __( 'Dashboard', 'email-subscribers' ), __( 'Dashboard', 'email-subscribers' ), 'edit_posts', 'es_dashboard', array( $this, 'es_dashboard_callback' ) );
 		}
-
-		if ( in_array( 'workflows', $accessible_sub_menus ) ) {
-
-
-			// Add Workflows Submenu
-			$hook = add_submenu_page( 'es_dashboard', __( 'Workflows', 'email-subscribers' ), __( 'Workflows', 'email-subscribers' ), 'edit_posts', 'es_workflows', array( $this, 'render_workflows' ) );
-
-			add_action( "load-$hook", array( 'ES_Workflows_Table', 'screen_options' ) );
-			add_action( "load-$hook", array( 'ES_Workflow_Admin_Edit', 'register_meta_boxes' ) );
-			add_action( "admin_footer-$hook", array( 'ES_Workflow_Admin_Edit', 'print_script_in_footer' ) );
-			add_action( 'admin_init', array( 'ES_Workflow_Admin_Edit', 'maybe_save' ) );
-		}
-
-		if ( in_array( 'campaigns', $accessible_sub_menus ) ) {
-			// Add Campaigns Submenu
-			$hook = add_submenu_page( 'es_dashboard', __( 'Campaigns', 'email-subscribers' ), __( 'Campaigns', 'email-subscribers' ), 'edit_posts', 'es_campaigns', array( $this, 'render_campaigns' ) );
-			add_action( "load-$hook", array( 'ES_Campaigns_Table', 'screen_options' ) );
-
-			add_submenu_page( 'es_dashboard', __( 'Post Notifications', 'email-subscribers' ), '<span id="ig-es-post-notifications">' . __( 'Post Notifications', 'email-subscribers' ) . '</span>', 'edit_posts', 'es_notifications', array( $this, 'load_post_notifications' ) );
-			add_submenu_page( 'es_dashboard', __( 'Broadcast', 'email-subscribers' ), '<span id="ig-es-broadcast">' . __( 'Broadcast', 'email-subscribers' ) . '</span>', 'edit_posts', 'es_newsletters', array( $this, 'load_newsletters' ) );
-			add_submenu_page( null, __( 'Template Preview', 'email-subscribers' ), __( 'Template Preview', 'email-subscribers' ), 'edit_posts', 'es_template_preview', array( $this, 'load_preview' ) );
-
-		}
-
-
-		if ( in_array( 'forms', $accessible_sub_menus ) ) {
-			// Add Forms Submenu
-			$hook = add_submenu_page( 'es_dashboard', __( 'Forms', 'email-subscribers' ), __( 'Forms', 'email-subscribers' ), 'edit_posts', 'es_forms', array( $this, 'render_forms' ) );
-			add_action( "load-$hook", array( 'ES_Forms_Table', 'screen_options' ) );
-		}
-
+		
 		if ( in_array( 'audience', $accessible_sub_menus ) ) {
 			// Add Contacts Submenu
 			$hook = add_submenu_page( 'es_dashboard', __( 'Audience', 'email-subscribers' ), __( 'Audience', 'email-subscribers' ), 'edit_posts', 'es_subscribers', array( $this, 'render_contacts' ) );
 			add_action( "load-$hook", array( 'ES_Contacts_Table', 'screen_options' ) );
-
+	
 			// Add Lists Submenu
 			$hook = add_submenu_page( 'es_dashboard', __( 'Lists', 'email-subscribers' ), '<span id="ig-es-lists">' . __( 'Lists', 'email-subscribers' ) . '</span>', 'edit_posts', 'es_lists', array( $this, 'render_lists' ) );
-			add_action( "load-$hook", array( 'ES_Lists_Table', 'screen_options' ) );
+			//add_action( "load-$hook", array( 'ES_Lists_Table', 'screen_options' ) );
+		}
+
+		if ( in_array( 'forms', $accessible_sub_menus ) ) {
+			// Add Forms Submenu
+			$hook = add_submenu_page( 'es_dashboard', __( 'Forms', 'email-subscribers' ), __( 'Forms', 'email-subscribers' ), 'edit_posts', 'es_forms', array( $this, 'render_forms' ) );
+			//add_action( "load-$hook", array( 'ES_Forms_Table', 'screen_options' ) );
+		}
+		
+		if ( in_array( 'campaigns', $accessible_sub_menus ) ) {
+			// Add Campaigns Submenu
+			$hook = add_submenu_page( 'es_dashboard', __( 'Campaigns', 'email-subscribers' ), __( 'Campaigns', 'email-subscribers' ), 'edit_posts', 'es_campaigns', array( $this, 'render_campaigns' ) );
+			//add_action( "load-$hook", array( 'ES_Campaigns_Table', 'screen_options' ) );
+			
+			add_submenu_page( 'es_dashboard', __( 'Post Notifications', 'email-subscribers' ), '<span id="ig-es-post-notifications">' . __( 'Post Notifications', 'email-subscribers' ) . '</span>', 'edit_posts', 'es_notifications', array( $this, 'load_post_notifications' ) );
+			add_submenu_page( 'es_dashboard', __( 'Broadcast', 'email-subscribers' ), '<span id="ig-es-broadcast">' . __( 'Broadcast', 'email-subscribers' ) . '</span>', 'edit_posts', 'es_newsletters', array( $this, 'load_newsletters' ) );
+			add_submenu_page( null, __( 'Template Preview', 'email-subscribers' ), __( 'Template Preview', 'email-subscribers' ), 'edit_posts', 'es_template_preview', array( $this, 'load_preview' ) );
+			
+		}
+		
+		if ( in_array( 'workflows', $accessible_sub_menus ) ) {
+
+			// Add Workflows Submenu
+			$hook = add_submenu_page( 'es_dashboard', __( 'Workflows', 'email-subscribers' ), __( 'Workflows', 'email-subscribers' ), 'edit_posts', 'es_workflows', array( $this, 'render_workflows' ) );
+
+			//add_action( "load-$hook", array( 'ES_Workflows_Table', 'screen_options' ) );
+			add_action( "load-$hook", array( 'ES_Workflow_Admin_Edit', 'register_meta_boxes' ) );
+			add_action( "admin_footer-$hook", array( 'ES_Workflow_Admin_Edit', 'print_script_in_footer' ) );
+			add_action( 'admin_init', array( 'ES_Workflow_Admin_Edit', 'maybe_save' ) );
 		}
 
 		if ( in_array( 'reports', $accessible_sub_menus ) ) {
@@ -281,6 +281,9 @@ class Email_Subscribers_Admin {
 
 	// Function for Klawoo's Subscribe form on Help & Info page
 	public static function klawoo_subscribe() {
+
+		check_ajax_referer( 'ig-es-admin-ajax-nonce', 'security' );
+
 		$url = 'http://app.klawoo.com/subscribe';
 
 		$form_source = ig_es_get_request_data( 'from_source' );
@@ -289,7 +292,7 @@ class Email_Subscribers_Admin {
 		}
 
 		if ( ! empty( $_POST ) ) {
-			$params = ig_es_get_post_data();
+			$params = ig_es_get_data( $_POST, '', array(), true );
 		} else {
 			exit();
 		}
@@ -301,7 +304,7 @@ class Email_Subscribers_Admin {
 			'method'  => $method
 		);
 
-		if ( $method == 'POST' ) {
+		if ( 'POST' == $method ) {
 			$options['body'] = $qs;
 		} else {
 			if ( strpos( $url, '?' ) !== false ) {
@@ -313,14 +316,14 @@ class Email_Subscribers_Admin {
 
 		$response = wp_remote_request( $url, $options );
 
-		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+		if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
 			$data = $response['body'];
-			if ( $data != 'error' ) {
+			if ( 'error' != $data ) {
 
 				$message_start = substr( $data, strpos( $data, '<body>' ) + 6 );
 				$remove        = substr( $message_start, strpos( $message_start, '</body>' ) );
 				$message       = trim( str_replace( $remove, '', $message_start ) );
-				echo( $message );
+				echo wp_kses_post( $message );
 				exit();
 			}
 		}
@@ -379,6 +382,7 @@ class Email_Subscribers_Admin {
 
 	/**
 	 * Render Post Notifications
+	 *
 	 * @since 4.2.1
 	 */
 	public function load_post_notifications() {
@@ -436,7 +440,7 @@ class Email_Subscribers_Admin {
 	}
 
 
-	function submenu_order( $menu_order ) {
+	public function submenu_order( $menu_order ) {
 		global $submenu;
 
 		$es_menus = isset( $submenu['es_dashboard'] ) ? $submenu['es_dashboard'] : array();
@@ -460,8 +464,6 @@ class Email_Subscribers_Admin {
 				'es_settings',
 				'es_general_information',
 				'es_pricing',
-
-
 			);
 
 			$order = array_flip( $es_menu_order );
@@ -473,8 +475,7 @@ class Email_Subscribers_Admin {
 
 			ksort( $reorder_es_menu );
 
-			$submenu['es_dashboard'] = $reorder_es_menu;
-
+			//$submenu['es_dashboard'] = $reorder_es_menu;
 		}
 
 		# Return the new submenu order
@@ -493,12 +494,13 @@ class Email_Subscribers_Admin {
 		if ( ! $is_sa_option_exists && ! $ig_es_4015_db_updated_at && 'yes' !== $onboarding_status ) {
 			include plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/onboarding.php';
 		} else {
+			
 			include plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/dashboard.php';
 		}
 
 	}
 
-	function send_test_email() {
+	public function send_test_email() {
 
 		check_ajax_referer( 'ig-es-admin-ajax-nonce', 'security' );
 		
@@ -563,13 +565,13 @@ class Email_Subscribers_Admin {
 	}
 
 	//save skip signup option
-	function es_save_onboarding_skip() {
+	public function es_save_onboarding_skip() {
 
 		$es_skip     = ig_es_get_request_data( 'es_skip' );
 		$option_name = ig_es_get_request_data( 'option_name' );
 
 
-		if ( $es_skip == '1' && ! empty( $option_name ) ) {
+		if ( '1' == $es_skip && ! empty( $option_name ) ) {
 			/**
 			 * If user logged in then only save option.
 			 */
@@ -590,7 +592,7 @@ class Email_Subscribers_Admin {
 		$list_id = ig_es_get_request_data( 'list_id', 0 );
 		$status  = ig_es_get_request_data( 'status', 'all' );
 
-		if ( $list_id == 0 ) {
+		if ( 0 == $list_id ) {
 			return 0;
 		}
 
@@ -603,7 +605,7 @@ class Email_Subscribers_Admin {
 		global $ig_es_tracker;
 
 		$template_id = (int) ig_es_get_request_data( 'template_id', 0 );
-		if ( $template_id == 0 ) {
+		if ( 0 == $template_id ) {
 			return 0;
 		}
 		$post_temp_arr     = get_post( $template_id );
@@ -620,6 +622,26 @@ class Email_Subscribers_Admin {
 	}
 
 	/**
+	 * Get Email Subscribers' screen options
+	 *
+	 * @return array
+	 * 
+	 * @since 4.5.4
+	 */
+	public function get_admin_screen_options() {
+
+		$admin_screen_options = array(
+			'es_campaigns_per_page',
+			'es_contacts_per_page',
+			'es_lists_per_page',
+			'es_forms_per_page',
+			'es_workflows_per_page'
+		);
+
+		return apply_filters( 'ig_es_admin_screen_options', $admin_screen_options );
+	}
+
+	/**
 	 * Hooked to 'set-screen-options' filter
 	 *
 	 * @param $status
@@ -632,15 +654,10 @@ class Email_Subscribers_Admin {
 	 */
 	public function save_screen_options( $status, $option, $value ) {
 
-		$ig_es_options = array(
-			'es_campaigns_per_page',
-			'es_contacts_per_page',
-			'es_lists_per_page',
-			'es_forms_per_page',
-			'es_workflows_per_page'
-		);
+		$admin_screen_options = $this->get_admin_screen_options();
 
-		if ( in_array( $option, $ig_es_options ) ) {
+		if ( in_array( $option, $admin_screen_options ) ) {
+
 			return $value;
 		}
 
@@ -648,7 +665,24 @@ class Email_Subscribers_Admin {
 	}
 
 	/**
+	 * Hook 'save_screen_options' function to "set_screen_option_{$option}" filter to allow saving of ES custom screen options in WP 5.4.2
+	 *
+	 * @since 4.5.4
+	 */
+	public function save_screen_option() {
+
+		$admin_screen_options = $this->get_admin_screen_options();
+
+		if ( ! empty( $admin_screen_options ) && is_array( $admin_screen_options ) ) {
+			foreach ( $admin_screen_options as $option ) {
+				add_filter( "set_screen_option_{$option}", array( $this, 'save_screen_options' ), 10, 3 );
+			}
+		}
+	}
+
+	/**
 	 * Remove all admin notices
+	 *
 	 * @since 4.4.0
 	 */
 	public function remove_other_admin_notices() {
@@ -662,7 +696,7 @@ class Email_Subscribers_Admin {
 
 		if ( ! empty( $get_page ) && 'es_dashboard' == $get_page ) {
 
-		    // Allow only Icegram Connection popup on Dashboard
+			// Allow only Icegram Connection popup on Dashboard
 			$es_display_notices = array(
 				'connect_icegram_notification',
 			);
@@ -783,7 +817,8 @@ class Email_Subscribers_Admin {
 			$wordpress_url = 'https://www.wordpress.org';
 			$icegram_url   = 'https://www.icegram.com';
 
-			$footer_text = sprintf( __( '<span id="footer-thankyou">Thank you for creating with <a href="%s" target="_blank">WordPress</a> | Email Subscribers <b>%s</b>. Developed by team <a href="%s" target="_blank">Icegram</a></span>', 'email-subscribers' ), $wordpress_url, ES_PLUGIN_VERSION, $icegram_url );
+			/* translators: 1. WordPress URL 2. Email Subscribers version 3. Icegram site URL */
+			$footer_text = sprintf( __( '<span id="footer-thankyou">Thank you for creating with <a href="%1$s" target="_blank">WordPress</a> | Email Subscribers <b>%2$s</b>. Developed by team <a href="%3$s" target="_blank">Icegram</a></span>', 'email-subscribers' ), $wordpress_url, ES_PLUGIN_VERSION, $icegram_url );
 		}
 
 		return $footer_text;

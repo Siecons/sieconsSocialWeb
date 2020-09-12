@@ -91,10 +91,6 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 				echo '		<td style="font-size:10px;">'.$valObj->hint.'</td>';
 				echo '		</tr>';
 			}
-			if ($options->addmore) {
-				$need_pro = ($this->pro) ? "" : "need_pro";
-				echo '		<tr><td colspan="'.(count($valObj->checkboxes) + 2).'"><a class="addmore '.$need_pro.'" href="#">Add Another</a></td></tr>';
-			}
 			echo '	</table>';
 		}
 		
@@ -329,11 +325,7 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 					,{ "label" : "Require", "value" : "require", "default" : "'.$require.'" }
 					,{ "label" : "Show", "value" : "show", "default" : "'.$show.'" }
 			';
-			if ($has_rating === 1) {
-				$rtn .= '
-					,{ "label" : "Rate", "value" : "rate", "default" : "'.$rate.'", "class" : "need_pro" }
-				';
-			}
+			
 			$rtn .= '
 				]
 			}
@@ -953,6 +945,9 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 			// get current post meta data
 			$meta = get_post_meta($post->ID, $field['id'], true);
 			
+			// xss protect
+			$meta = esc_html($meta);
+			
 			echo '<tr>',
 				 '<th style="width:30%"><label for="', $field['id'], '">', $field['name'], '</label></th>',
 				 '<td>';
@@ -1166,9 +1161,6 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 					Community Support Forum: <a target="_blank" href="<?php echo $this->support_link; ?>"><?php echo $this->support_link; ?></a><br /><br />
 					<div style="color:#BE5409;font-weight:bold;">
 						If you like this plugin, please <a target="_blank" href="https://wordpress.org/support/plugin/wp-customer-reviews/reviews/">login and rate it 5 stars here</a>
-						<?php if (!$this->pro) : ?>
-							<!-- and consider purchasing the Pro version. -->
-						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -1265,12 +1257,7 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 	}
 	
 	function tab_display_settings() {
-		echo '<br /><strong>Tip: You can completely customize the display of the review form and reviews on the Customize Templates / CSS tab.</strong>';
 		$this->my_output_settings_section('display_settings');
-	}
-	
-	function tab_templates() {
-		echo '<br /><strong>This feature is available in the Pro version which will be announced soon.</strong>';
 	}
 	
 	function tab_tools() {
@@ -1387,18 +1374,13 @@ class WPCustomerReviewsAdmin3 extends WPCustomerReviews3
 		</style>
 		
 		<div class="wrap <?php echo $this->prefix; ?>_myplugin_options">
-			<?php if ($this->pro) : ?>
-				<h2>WP Customer Reviews PRO - Settings</h2>
-			<?php else : ?>
-				<h2>WP Customer Reviews Lite - Settings <!--<div class="need_pro"><a class="boldBlue" target="_blank" href="<?php echo $this->prolink; ?>?from=h2_upgrade">Upgrade to Pro</a></div>--> </h2>
-			<?php endif; ?>
+			<h2>WP Customer Reviews - Settings</h2>
 			
 			<h2 class="nav-tab-wrapper">
 				<a href="<?php echo $slug;?>&tab=about" class="nav-tab <?php echo $active_tab == 'about' ? 'nav-tab-active' : ''; ?>">About</a>
 				<a href="<?php echo $slug;?>&tab=how_to_use" class="nav-tab <?php echo $active_tab == 'how_to_use' ? 'nav-tab-active' : ''; ?>">How to use</a>
 				<a href="<?php echo $slug;?>&tab=form_settings" class="nav-tab <?php echo $active_tab == 'form_settings' ? 'nav-tab-active' : ''; ?>">Review Form Settings</a>
 				<a href="<?php echo $slug;?>&tab=display_settings" class="nav-tab <?php echo $active_tab == 'display_settings' ? 'nav-tab-active' : ''; ?>">Display Settings</a>
-				<a href="<?php echo $slug;?>&tab=templates" class="nav-tab <?php echo $active_tab == 'templates' ? 'nav-tab-active' : ''; ?>">Customize Templates / CSS</a>
 				<a href="<?php echo $slug;?>&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>">Tools</a>
 			</h2>
 			

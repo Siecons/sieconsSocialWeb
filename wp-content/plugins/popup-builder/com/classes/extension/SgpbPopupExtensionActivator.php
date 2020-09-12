@@ -71,7 +71,7 @@ class PopupExtensionActivator
 
 	private function moveExtensionToPluginsSection($extensionsInfo)
 	{
-		foreach ($extensionsInfo as $extensionFolder => $extensionsInfo) {
+		foreach ($extensionsInfo as $extensionFolder => $extensionsDetail) {
 			$passedExtension =  WP_PLUGIN_DIR.DIRECTORY_SEPARATOR.$extensionFolder.DIRECTORY_SEPARATOR;
 			$originalExtension = SG_POPUP_BUILDER_PATH.'extensions'.DIRECTORY_SEPARATOR.$extensionFolder.DIRECTORY_SEPARATOR;
 			@rename($originalExtension,$passedExtension);

@@ -63,25 +63,6 @@ this._syncA=null,this._syncS=null,this.$element.off(".wpcr3_select"),this.$eleme
 			wpcr3_format.change();
 		}
 		// end: post meta fields
-	
-		// begin: plugin settings fields
-		var options = $('.wpcr3_myplugin_options');
-		if (options.length) {
-			$('.setting_wpcr3_option_custom_fields input.need_pro').click(function(e){
-				e.preventDefault();
-				$(this).removeAttr('checked');
-				alert('Rating custom fields is available in the pro version.');
-			});
-			
-			$('.table_multi_input_checkbox a.addmore').click(function(e){
-				e.preventDefault(); var t = $(this);
-				if (t.hasClass('need_pro')) {
-					alert('Additional custom fields are available in the pro version.');
-					return false;
-				}
-			});
-		}
-		// end: plugin settings fields
 	});
 })(jQuery);
 

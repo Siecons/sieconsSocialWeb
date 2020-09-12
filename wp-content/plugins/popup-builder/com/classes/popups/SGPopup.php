@@ -157,6 +157,10 @@ abstract class SGPopup
 			$events = array_merge($events, $optionEvents);
 		}
 
+		if (!empty($popupObj->getOptionValue('sgpb-enable-floating-button'))) {
+			$events[] = array('param' => 'setByCssClass', 'hiddenOption' => array());
+		}
+
 		return apply_filters('sgpbPopupEvents', $events, $popupObj);
 	}
 
@@ -374,9 +378,6 @@ abstract class SGPopup
 				break;
 			case 'email':
 				$sanitizedValue = sanitize_email($value);
-				break;
-			case "checkbox":
-				$sanitizedValue = sanitize_text_field($value);
 				break;
 			case 'sgpb':
 				$sanitizedValue = $this->recursiveHtmlSpecialchars($value);

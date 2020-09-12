@@ -914,6 +914,19 @@ class SgpbDataConfig
 		$options[] = array('name' => 'sgpb-show-popup-same-user-expiry', 'type' => 'number', 'defaultValue' => 1);
 		$options[] = array('name' => 'sgpb-show-popup-same-user-page-level', 'type' => 'checkbox', 'defaultValue' => '');
 
+		$options[] = array('name' => 'sgpb-enable-floating-button', 'type' => 'checkbox', 'defaultValue' => '');
+		$options[] = array('name' => 'sgpb-floating-button-style', 'type' => 'text', 'defaultValue' => 'corner');
+		$options[] = array('name' => 'sgpb-floating-button-position', 'type' => 'text', 'defaultValue' => 'bottom-right');
+		$options[] = array('name' => 'sgpb-floating-button-position-top', 'type' => 'text', 'defaultValue' => '40');
+		$options[] = array('name' => 'sgpb-floating-button-position-right', 'type' => 'text', 'defaultValue' => '50');
+		$options[] = array('name' => 'sgpb-floating-button-font-size', 'type' => 'number', 'defaultValue' => 16);
+		$options[] = array('name' => 'sgpb-floating-button-border-size', 'type' => 'number', 'defaultValue' => 5);
+		$options[] = array('name' => 'sgpb-floating-button-border-radius', 'type' => 'number', 'defaultValue' => 5);
+		$options[] = array('name' => 'sgpb-floating-button-border-color', 'type' => 'text', 'defaultValue' => '#5263eb');
+		$options[] = array('name' => 'sgpb-floating-button-bg-color', 'type' => 'text', 'defaultValue' => '#5263eb');
+		$options[] = array('name' => 'sgpb-floating-button-text-color', 'type' => 'text', 'defaultValue' => '#ffffff');
+		$options[] = array('name' => 'sgpb-floating-button-text', 'type' => 'text', 'defaultValue' => __('Click it!'));
+
 		$SGPB_OPTIONS = apply_filters('sgpbPopupDefaultOptions', $options);
 	}
 

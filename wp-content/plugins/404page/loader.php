@@ -42,7 +42,7 @@ function pp_404page() {
     'slug'      => pathinfo( dirname( __FILE__ ) . '/404page.php', PATHINFO_FILENAME ),
     'name'      => '404page - your smart custom 404 error page',
     'shortname' => '404page',
-    'version'   => '11.2.4'
+    'version'   => '11.2.6'
   ) );
     
 }

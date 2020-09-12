@@ -9,7 +9,7 @@ Tags: popup, pop up, wordpress popup, popup maker, exit popup, popup builder, wo
 Requires at least: 4.2
 Tested up to: 5.5
 Requires PHP: 5.3.3
-Stable tag: 3.68.4
+Stable tag: 3.68.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,8 +30,9 @@ https://www.youtube.com/watch?v=-wFDJDjczeY
 *   Set popup animation effect
 *   Choose between several popup themes
 *   Set popup location on the screen
-*   Show popup after X amount of page scrolling/Scroll popups - - sometimes you don't want to show the popup right away, it's a good idea to set this option so the popup will be shown to the visitor only when he scrolls.
+*   Show popup after X amount of page scrolling/Scroll popups - sometimes you don't want to show the popup right away, it's a good idea to set this option so the popup will be shown to the visitor only when he scrolls.
 *   OnClick/OnHover popup
+*   Floating Button - trigger a popup by clicking on floating button. It comes with many customization options: the style, the position, text formatting, border design, etc. The Floating Button can be designed with the color palette and style which would suit your website design nicely.
 *   Redirect confirmation popup/Leaving notice popup
 *   Repetitive pop up - show popup every X period of time
 
@@ -184,6 +185,16 @@ Go to the Popup Builder settings and set your desired options.
 13. Facebook popup
 
 == Changelog ==
+
+= Version 3.68.5 =
+* Added new feature: Floating Button - Trigger popup by clicking on the button
+* Improvement of Newsletter: Added an option to send test emails before running the email campaign
+* Improvement of Newsletter related to keeping already inserted/sent email content after refresh
+* Improvement of code in Feedback.php file
+* PHP version compatibility improvements
+* Improvement and code optimization of core files
+* Bug fixed related to the jQuery depreciation functionality
+* Bug fixed related to cookie saving
 
 = Version 3.68.4 =
 * Improvement of core JS files.
@@ -1200,7 +1211,7 @@ Leave us a good review :)
 
 == Upgrade Notice ==
 
-Current Version of Popup Builder is 3.68.4
+Current Version of Popup Builder is 3.68.5
 
 == Other Notes ==
 

@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Class for workflow checkbox field
+ * 
  * @class ES_Checkbox
  */
 class ES_Checkbox extends ES_Field {
@@ -34,13 +36,15 @@ class ES_Checkbox extends ES_Field {
 	}
 
 	/**
+	 * Render checkbox field
+	 * 
 	 * @param $value
 	 * 
 	 * @since 4.4.3
 	 */
 	public function render( $value ) {
 
-		if ( $value === null || $value === '' ) {
+		if ( null === $value || '' === $value ) {
 			$value = $this->default_to_checked;
 		}
 
@@ -49,14 +53,14 @@ class ES_Checkbox extends ES_Field {
 		<input type="checkbox"
 			 name="<?php echo esc_attr( $this->get_full_name() ); ?>"
 			 value="1"
-			 <?php echo ( $value ? 'checked' : '' ) ?>
-			 class="<?php echo esc_attr( $this->get_classes() ) ?>"
+			 <?php echo ( $value ? 'checked' : '' ); ?>
+			 class="<?php echo esc_attr( $this->get_classes() ); ?>"
 			<?php $this->output_extra_attrs(); ?>
 			>
 			<?php
 				echo esc_html( $this->get_title() );
 			?>
 		</label>
-	<?php
+		<?php
 	}
 }

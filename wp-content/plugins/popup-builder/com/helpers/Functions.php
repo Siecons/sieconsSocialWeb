@@ -186,44 +186,6 @@ class Functions
 		return $engine;
 	}
 
-	public static function getPopupTypeToAllowToShowMetabox()
-	{
-		global $post;
-
-		if ($post->post_type != SG_POPUP_POST_TYPE) {
-			return false;
-		}
-		if (!empty($_GET['sgpb_type'])) {
-			$type = $_GET['sgpb_type'];
-		}
-		else {
-			$popupId = $post->ID;
-			$popup = SGPopup::find($popupId);
-			if (empty($popup) || !is_object($popup)) {
-				return false;
-			}
-			$type = $popup->getType();
-		}
-
-		return $type;
-	}
-
-	public static function getExtensionDirectory($extensionFolderName = '', $popupMainFolderName = '')
-	{
-		$directoryExisits = is_dir(SGPB_POPUP_EXTENSIONS_PATH.$extensionFolderName);
-		$dir = SGPB_POPUP_EXTENSIONS_PATH.$extensionFolderName;
-
-		if (!$directoryExisits) {
-			$directoryExisits = is_dir(WP_PLUGIN_DIR.'/'.$extensionFolderName);
-			$dir = WP_PLUGIN_DIR.'/'.$extensionFolderName;
-			if (!$directoryExisits) {
-				$dir = false;
-			}
-		}
-
-		return $dir;
-	}
-
 	public static function getIpAddress()
 	{
 		$ipAddress = 'UNKNOWN';

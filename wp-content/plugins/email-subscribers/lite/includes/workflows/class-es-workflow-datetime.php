@@ -63,6 +63,8 @@ class ES_Workflow_DateTime extends DateTime {
 
 
 	/**
+	 * Convert to mysql date time string
+	 * 
 	 * @since 4.4.0
 	 *
 	 * @return string

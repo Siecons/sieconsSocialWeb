@@ -15,7 +15,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 if ( !class_exists( 'PP_404Page_Admin' ) ) {
   
-  class PP_404Page_Admin extends PPF04_Admin {
+  class PP_404Page_Admin extends PPF06_Admin {
 
     
     /**
@@ -78,6 +78,7 @@ if ( !class_exists( 'PP_404Page_Admin' ) ) {
             'section' => 'general',
             'order'   => 10,
             'title'   => esc_html__( 'General', '404page' ),
+            'icon'    => 'general',
             'fields' => array(
               array(
                 'key'      => 'page_id',
@@ -92,6 +93,7 @@ if ( !class_exists( 'PP_404Page_Admin' ) ) {
             'section' => 'advanced',
             'order'   => 20,
             'title'   => esc_html__( 'Advanced', '404page' ),
+            'icon'    => 'advanced',
             'fields' => array(
               array(
                 'key'      => 'hide',
@@ -127,6 +129,7 @@ if ( !class_exists( 'PP_404Page_Admin' ) ) {
             'section'  => 'videos',
             'order'   => 100,
             'title'    => esc_html__( 'Explainer Videos', '404page' ),
+            'icon'    => 'videos',
             'html'     => $this->add_videos(),
             'nosubmit' => true
           
@@ -476,8 +479,7 @@ if ( !class_exists( 'PP_404Page_Admin' ) ) {
         array( 
           'link'  => 'https://wordpress.org/support/plugin/' . $this->core()->get_plugin_slug() . '/reviews/',
           'title' => __( 'Please rate Plugin', '404page' ),
-          'icon'  => 'dashicons-star-filled',
-          'highlight' => true
+          'icon'  => 'dashicons-star-filled'
         ),
         array( 
           'link'  => 'https://wordpress.org/plugins/' . $this->core()->get_plugin_slug(),

@@ -5,19 +5,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class ES_DB_Lists extends ES_DB {
+	
 	/**
+	 * Table name
+	 * 
 	 * @since 4.0.0
 	 * @var $table_name
 	 *
 	 */
 	public $table_name;
+	
 	/**
+	 * Table DB version
+	 * 
 	 * @since 4.0.0
 	 * @var $version
 	 *
 	 */
 	public $version;
+	
 	/**
+	 * Table primary key column name
+	 * 
 	 * @since 4.0.0
 	 * @var $primary_key
 	 *
@@ -197,10 +206,12 @@ class ES_DB_Lists extends ES_DB {
 	public function get_all_lists_name_by_contact( $id ) {
 		global $wpdb;
 
-		$lists_contact_table = IG_LISTS_CONTACTS_TABLE;
-
-		$sSql = $wpdb->prepare( "SELECT `name` FROM {$this->table_name} WHERE id IN ( SELECT list_id FROM {$lists_contact_table} WHERE contact_id = %d )", $id );
-		$res  = $wpdb->get_col( $sSql );
+		$res  = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT `name` FROM {$wpdb->prefix}ig_lists WHERE id IN ( SELECT list_id FROM {$wpdb->prefix}ig_lists_contacts WHERE contact_id = %d )",
+				$id
+			)			
+		);
 
 		return $res;
 	}

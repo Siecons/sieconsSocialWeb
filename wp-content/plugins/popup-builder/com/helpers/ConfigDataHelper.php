@@ -869,6 +869,22 @@ class ConfigDataHelper
 			'sgpb-fadeOut' => __('FadeOut', SG_POPUP_TEXT_DOMAIN)
 		);
 
+		$data['floatingButtonPositions'] = array(
+			'top-left' => __('Top left', SG_POPUP_TEXT_DOMAIN),
+			'top-right' => __('Top right', SG_POPUP_TEXT_DOMAIN),
+			'bottom-left' => __('Bottom left', SG_POPUP_TEXT_DOMAIN),
+			'bottom-right' => __('Bottom right', SG_POPUP_TEXT_DOMAIN),
+			'top-center' => __('Top center', SG_POPUP_TEXT_DOMAIN),
+			'bottom-center' => __('Bottom center', SG_POPUP_TEXT_DOMAIN),
+			'right-center' => __('Right center', SG_POPUP_TEXT_DOMAIN),
+			'left-center' => __('Left center', SG_POPUP_TEXT_DOMAIN)
+		);
+
+		$data['floatingButtonStyle'] = array(
+			'corner' => __('Corner', SG_POPUP_TEXT_DOMAIN),
+			'basic' => __('Basic', SG_POPUP_TEXT_DOMAIN)
+		);
+
 		$data['userRoles'] = self::getAllUserRoles();
 
 		return $data;

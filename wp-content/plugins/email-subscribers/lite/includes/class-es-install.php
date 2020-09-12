@@ -267,12 +267,12 @@ if ( ! class_exists( 'ES_Install' ) ) {
 		public static function install_actions() {
 			if ( ! empty( $_GET['do_update_ig_es'] ) ) {
 				check_admin_referer( 'ig_es_db_update', 'ig_es_db_update_nonce' );
-				$from_db_version = ! empty( $_GET['from_db_version'] ) ? $_GET['from_db_version'] : '';
+				$from_db_version = ! empty( $_GET['from_db_version'] ) ? sanitize_text_field( $_GET['from_db_version'] ) : '';
 
 				self::delete_update_transient();
 
 				if ( ! empty( $from_db_version ) ) {
-					self::$logger->info( sprintf( "Forcefully update database from: %s", $from_db_version ), self::$logger_context );
+					self::$logger->info( sprintf( 'Forcefully update database from: %s', $from_db_version ), self::$logger_context );
 
 					self::update_db_version( $from_db_version );
 				}
@@ -373,9 +373,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			$running_migration_queue_like = '%' . $wpdb->esc_like( '_running_migration_for_' ) . '%';
 			$db_migration_queue_like      = '%' . $wpdb->esc_like( 'ig_es_updater_batch_' ) . '%';
 
-			$query = "DELETE FROM {$wpdb->prefix}options WHERE option_name LIKE '{$transient_like}' OR option_name LIKE '{$updating_like}' OR option_name LIKE '{$last_sent_queue_like}' OR option_name LIKE '{$running_migration_queue_like}' OR option_name LIKE '{$db_migration_queue_like}'";
-
-			$wpdb->query( $query );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}options WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s", $transient_like, $updating_like, $last_sent_queue_like, $running_migration_queue_like, $db_migration_queue_like ) );
 
 		}
 
@@ -426,7 +424,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 
 			$latest_db_version_to_update = self::get_latest_db_version_to_update();
 
-			self::$logger->info( sprintf( "Current DB Version: %s", $current_db_version ), self::$logger_context );
+			self::$logger->info( sprintf( 'Current DB Version: %s', $current_db_version ), self::$logger_context );
 
 			return ! is_null( $current_db_version ) && version_compare( $current_db_version, $latest_db_version_to_update, '<' );
 		}
@@ -488,7 +486,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			// Get all tasks processed
 			$processed_tasks = get_option( 'ig_es_update_processed_tasks', array() );
 
-			self::$logger->info( sprintf( "Current IG ES DB Version: %s", $current_db_version ), self::$logger_context );
+			self::$logger->info( sprintf( 'Current IG ES DB Version: %s', $current_db_version ), self::$logger_context );
 
 			// Get al tasks to process
 			$tasks = self::get_db_update_callbacks();
@@ -512,14 +510,14 @@ if ( ! class_exists( 'ES_Install' ) ) {
 
 			if ( count( $tasks_to_process ) > 0 ) {
 
-				self::$logger->info( "Yes, we have tasks to process", self::$logger_context );
+				self::$logger->info( 'Yes, we have tasks to process', self::$logger_context );
 
 				update_option( 'ig_es_update_tasks_to_process', $tasks_to_process );
 
 				self::dispatch();
 
 			} else {
-				self::$logger->info( "Sorry, we do not have any tasks to process", self::$logger_context );
+				self::$logger->info( 'Sorry, we do not have any tasks to process', self::$logger_context );
 				delete_transient( 'ig_es_updating' );
 			}
 
@@ -540,15 +538,18 @@ if ( ! class_exists( 'ES_Install' ) ) {
 
 			if ( count( $batch ) > 0 ) {
 
-				$current_memory_limit = @ini_get( 'memory_limit' );
-
 				// We may require lots of memory
-				@ini_set( 'memory_limit', '-1' );
+				// Add filter to increase memory limit
+				add_filter( 'ig_es_memory_limit', 'ig_es_increase_memory_limit' );
+					
+				wp_raise_memory_limit( 'ig_es' );
+
+				// Remove the added filter function so that it won't be called again if wp_raise_memory_limit called later on.
+				remove_filter( 'ig_es_memory_limit', 'ig_es_increase_memory_limit' );
 
 				// It may take long time to process database update.
 				// So, increase execution time
 				@set_time_limit( 360 );
-				@ini_set( 'max_execution_time', 360 );
 
 				foreach ( $batch as $key => $value ) {
 
@@ -560,9 +561,9 @@ if ( ! class_exists( 'ES_Install' ) ) {
 					// Check whether the tasks is already processed? If not, process it.
 					if ( ! in_array( $value, $ig_es_update_processed_tasks ) ) {
 						$is_value_exists = false;
-						$logger->info( sprintf( "[Processing] %s", $value ), self::$logger_context );
+						$logger->info( sprintf( '[Processing] %s', $value ), self::$logger_context );
 						$task = (bool) self::task( $value );
-						$logger->info( sprintf( "[Processed] %s", $value ), self::$logger_context );
+						$logger->info( sprintf( '[Processed] %s', $value ), self::$logger_context );
 					} else {
 						$logger->info( sprintf( "Task '%s' is already processed. Remove it from list", $value ), self::$logger_context );
 						unset( $batch[ $key ] );
@@ -581,8 +582,6 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				}
 
 				update_option( 'ig_es_update_tasks_to_process', $batch );
-
-				@ini_set( 'memory_limit', $current_memory_limit );
 			}
 
 			//Delete update transient
@@ -673,8 +672,8 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			$admin_email    = get_option( 'admin_email', '' );
 			$blog_name      = get_option( 'blogname', '' );
 
-			if ( $admin_email == "" ) {
-				$admin_email = "support@icegram.com";
+			if ( '' == $admin_email ) {
+				$admin_email = 'support@icegram.com';
 			}
 
 			$sender_details['name']  = $blog_name;
@@ -718,35 +717,35 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			$sender_details = self::get_sender_details();
 
 			$home_url  = home_url( '/' );
-			$optinlink = $home_url . "?es=optin&db={{DBID}}&email={{EMAIL}}&guid={{GUID}}";
-			$unsublink = $home_url . "?es=unsubscribe&db={{DBID}}&email={{EMAIL}}&guid={{GUID}}";
+			$optinlink = $home_url . '?es=optin&db={{DBID}}&email={{EMAIL}}&guid={{GUID}}';
+			$unsublink = $home_url . '?es=unsubscribe&db={{DBID}}&email={{EMAIL}}&guid={{GUID}}';
 
 			$guid    = ES_Common::generate_guid( 6 );
-			$cronurl = $home_url . "?es=cron&guid=" . $guid;
+			$cronurl = $home_url . '?es=cron&guid=' . $guid;
 
-			$report = "";
+			$report  = '';
 			$report .= "Hi Admin,\n\n";
 			$report .= "Email has been sent successfully to {{COUNT}} email(s). Please find the details below:\n\n";
 			$report .= "Unique ID: {{UNIQUE}}\n";
 			$report .= "Start Time: {{STARTTIME}}\n";
 			$report .= "End Time: {{ENDTIME}}\n";
 			$report .= "For more information, login to your dashboard and go to Reports menu in Email Subscribers.\n\n";
-			$report .= "Thank You.";
+			$report .= 'Thank You.';
 
 
-			$new_contact_email_subject = "One more contact joins our tribe!";
+			$new_contact_email_subject = 'One more contact joins our tribe!';
 			$new_contact_email_content = "Hi,\r\n\r\nYour friendly Email Subscribers notification bot here!\r\n\r\n{{NAME}} ({{EMAIL}}) joined our tribe just now.\r\n\r\nWhich list/s? {{LIST}}\r\n\r\nIf you know this person, or if they are an influencer, you may want to reach out to them personally!\r\n\r\nLater...";
 
-			$confirmation_email_subject = "Thanks!";
+			$confirmation_email_subject = 'Thanks!';
 			$confirmation_email_content = "Hi {{NAME}},\r\n\r\nJust one more step before we share the awesomeness from {{SITENAME}}!\r\n\r\nPlease confirm your subscription by clicking on <a href='{{SUBSCRIBE-LINK}}'>this link</a>\r\n\r\nThanks!";
 
-			$welcome_email_subject = "Welcome to {{SITENAME}}";
+			$welcome_email_subject = 'Welcome to {{SITENAME}}';
 			$welcome_email_content = "Hi {{NAME}},\r\n\r\nJust wanted to send you a quick note...\r\n\r\nThank you for joining the awesome {{SITENAME}} tribe.\r\n\r\nOnly valuable emails from me, promise!\r\n\r\nThanks!";
 
 			$cron_admin_email         = "Hi Admin,\r\n\r\nCron URL has been triggered successfully on {{DATE}} for the email '{{SUBJECT}}'. And it sent email to {{COUNT}} recipient(s).\r\n\r\nBest,\r\n" . $blogname;
 			$unsubscribe_link_content = "I'd be sad to see you go. But if you want to, you can unsubscribe from <a href='{{UNSUBSCRIBE-LINK}}'>here</a>";
 
-			$unsubscribe_message        = "<p>You will no longer hear from us. ☹️ Sorry to see you go!</p>";
+			$unsubscribe_message        = '<p>You will no longer hear from us. ☹️ Sorry to see you go!</p>';
 			$subscription_error_message = "Hmm.. Something's amiss..\r\n\r\nCould not complete your request. That email address  is probably already subscribed. Or worse blocked!!\r\n\r\nPlease try again after some time - or contact us if the problem persists.\r\n\r\n";
 
 			$unsubscribe_error_message = "Urrgh.. Something's wrong..\r\n\r\nAre you sure that email address is on our file? There was some problem in completing your request.\r\n\r\nPlease try again after some time - or contact us if the problem persists.\r\n\r\n";
@@ -766,7 +765,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				'ig_es_cron_admin_email'                => array( 'default' => $cron_admin_email, 'old_option' => 'ig_es_cron_adminmail' ),
 				'ig_es_cronurl'                         => array( 'default' => $cronurl, 'old_option' => 'ig_es_cronurl' ),
 				'ig_es_hourly_email_send_limit'         => array( 'default' => 300, 'old_option' => 'ig_es_cron_mailcount' ),
-				'ig_es_sent_report_subject'             => array( 'default' => "Your email has been sent", 'old_option' => 'ig_es_sentreport_subject' ),
+				'ig_es_sent_report_subject'             => array( 'default' => 'Your email has been sent', 'old_option' => 'ig_es_sentreport_subject' ),
 				'ig_es_sent_report_content'             => array( 'default' => $report, 'old_option' => 'ig_es_sentreport' ),
 				'ig_es_unsubscribe_link'                => array( 'default' => $unsublink, 'old_option' => 'ig_es_unsublink' ),
 				'ig_es_optin_link'                      => array( 'default' => $optinlink, 'old_option' => 'ig_es_optinlink' ),
@@ -775,7 +774,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				'ig_es_notify_admin'                    => array( 'default' => 'yes', 'old_option' => 'ig_es_notifyadmin', 'action' => 'convert_space_to_underscore' ),
 				'ig_es_optin_type'                      => array( 'default' => 'double_opt_in', 'old_option' => 'ig_es_optintype', 'action' => 'convert_space_to_underscore' ),
 				'ig_es_subscription_error_messsage'     => array( 'default' => $subscription_error_message, 'old_option' => 'ig_es_suberror' ),
-				'ig_es_subscription_success_message'    => array( 'default' => "You have been successfully subscribed.", 'old_option' => 'ig_es_successmsg' ),
+				'ig_es_subscription_success_message'    => array( 'default' => 'You have been successfully subscribed.', 'old_option' => 'ig_es_successmsg' ),
 				'ig_es_unsubscribe_error_message'       => array( 'default' => $unsubscribe_error_message, 'old_option' => 'ig_es_unsuberror' ),
 				'ig_es_unsubscribe_success_message'     => array( 'default' => $unsubscribe_message, 'old_option' => 'ig_es_unsubtext' ),
 				'ig_es_post_image_size'                 => array( 'default' => 'thumbnail', 'old_option' => 'ig_es_post_image_size' ),
@@ -797,7 +796,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				'ig_es_db_update_history'               => array( 'default' => $ig_es_db_update_history ),
 				'ig_es_email_sent_data'                 => array( 'default' => array() ),
 				'ig_es_mailer_settings'                 => array( 'default' => array( 'mailer' => 'wpmail' ), 'old_option' => '' ),
-				'ig_es_user_roles'                      => array( 'default' => ES_Install::get_default_permissions(), 'old_option' => '' ),
+				'ig_es_user_roles'                      => array( 'default' => self::get_default_permissions(), 'old_option' => '' ),
 				'ig_es_cron_interval'                   => array( 'default' => IG_ES_CRON_INTERVAL, 'old_option' => '' ),
 				'ig_es_max_email_send_at_once'          => array( 'default' => IG_ES_MAX_EMAIL_SEND_AT_ONCE, 'old_option' => '' ),
 			);
@@ -806,12 +805,14 @@ if ( ! class_exists( 'ES_Install' ) ) {
 		}
 
 		/**
-		 * @param null $version
-		 *
-		 * @since 4.0.0
-		 *
-		 * @modify 4.4.9
-		 */
+		  * Create tables
+		  *
+		  * @param null $version
+		  *
+		  * @since 4.0.0
+		  *
+		  * @modify 4.4.9
+		  */
 		public static function create_tables( $version = null ) {
 
 			global $wpdb;
@@ -983,12 +984,14 @@ if ( ! class_exists( 'ES_Install' ) ) {
 		}
 
 		/**
-		 * @param string $collate
-		 *
-		 * @return string
-		 *
-		 * @since 4.2.0
-		 */
+		  * Create Contact Meta table
+		  *
+		  * @param string $collate
+		  *
+		  * @return string
+		  *
+		  * @since 4.2.0
+		  */
 		public static function get_ig_es_420_schema( $collate = '' ) {
 			global $wpdb;
 
@@ -1166,7 +1169,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 		 */
 		private static function get_schema( $collate = '' ) {
 
-			$tables = self::get_ig_es_400_schema( $collate );
+			$tables  = self::get_ig_es_400_schema( $collate );
 			$tables .= self::get_ig_es_420_schema( $collate );
 			$tables .= self::get_ig_es_421_schema( $collate );
 			$tables .= self::get_ig_es_424_schema( $collate );
@@ -1190,7 +1193,8 @@ if ( ! class_exists( 'ES_Install' ) ) {
 
 			if ( $list_id ) {
 
-				$admin_email = $admin_name = get_option( 'admin_email' );
+				$admin_email = get_option( 'admin_email' );
+				$admin_name  = get_option( 'admin_email' );
 
 				$user = get_user_by( 'email', $admin_email );
 
@@ -1261,7 +1265,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			$from_email = ES_Common::get_ig_option( 'from_email' );
 
 			// Create Default Template
-			$sample = '<strong style="color: #990000">What can you achieve using Email Subscribers?</strong><p>Add subscription forms on website, send HTML newsletters & automatically notify subscribers about new blog posts once it is published.';
+			$sample  = '<strong style="color: #990000">What can you achieve using Email Subscribers?</strong><p>Add subscription forms on website, send HTML newsletters & automatically notify subscribers about new blog posts once it is published.';
 			$sample .= ' You can also Import or Export subscribers from any list to Email Subscribers.</p>';
 			$sample .= ' <strong style="color: #990000">Plugin Features</strong><ol>';
 			$sample .= ' <li>Send notification emails to subscribers when new blog posts are published.</li>';
@@ -1301,8 +1305,10 @@ if ( ! class_exists( 'ES_Install' ) ) {
 					$data['slug']             = sanitize_title( $title );
 					$data['name']             = $title;
 					$data['type']             = 'newsletter';
-					$data['from_email']       = $data['reply_to_email'] = $from_email;
-					$data['from_name']        = $data['reply_to_name'] = $from_name;
+					$data['from_email']       = $from_email;
+					$data['reply_to_email']	  = $from_email;
+					$data['from_name']        = $from_name;
+					$data['reply_to_name'] 	  = $from_name;
 					$data['list_ids']         = $list_id;
 					$data['base_template_id'] = $post_id;
 					$data['status']           = 1;
@@ -1377,14 +1383,14 @@ if ( ! class_exists( 'ES_Install' ) ) {
 			$from_name  = ES_Common::get_ig_option( 'from_name' );
 			$from_email = ES_Common::get_ig_option( 'from_email' );
 
-			$content = "Hello {{NAME}},\r\n\r\n";
+			$content  = "Hello {{NAME}},\r\n\r\n";
 			$content .= "We have published a new blog article on our website : {{POSTTITLE}}\r\n";
 			$content .= "{{POSTIMAGE}}\r\n\r\n";
-			$content .= "You can view it from this link : ";
+			$content .= 'You can view it from this link : ';
 			$content .= "{{POSTLINK}}\r\n\r\n";
 			$content .= "Thanks & Regards,\r\n";
 			$content .= "Admin\r\n\r\n";
-			$content .= "You received this email because in the past you have provided us your email address : {{EMAIL}} to receive notifications when new updates are posted.";
+			$content .= 'You received this email because in the past you have provided us your email address : {{EMAIL}} to receive notifications when new updates are posted.';
 
 			$title = 'New Post Published - {{POSTTITLE}}';
 			// Create Post Notification object
@@ -1424,8 +1430,10 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				$data['slug']             = sanitize_title( $title );
 				$data['name']             = $title;
 				$data['type']             = 'post_notification';
-				$data['from_email']       = $data['reply_to_email'] = $from_name;
-				$data['from_name']        = $data['reply_to_name'] = $from_email;
+				$data['from_email']       = $from_name;
+				$data['reply_to_email']   = $from_name;
+				$data['from_name']        = $from_email;
+				$data['reply_to_name']    = $from_email;
 				$data['categories']       = $categories_str;
 				$data['list_ids']         = $list_id;
 				$data['base_template_id'] = $post_id;
@@ -1606,10 +1614,9 @@ if ( ! class_exists( 'ES_Install' ) ) {
 
 				$templates = array();
 				$templates = apply_filters( 'ig_es_email_templates', $templates );
+				$post_type = 'es_template';
 
-				$sSql = "SELECT post_name FROM {$wpdb->prefix}posts where post_type  = 'es_template'";
-
-				$imported_templ = $wpdb->get_col( $sSql );
+				$imported_templ = $wpdb->get_col( $wpdb->prepare( "SELECT post_name FROM {$wpdb->prefix}posts where post_type  = %s", $post_type ) );
 
 				if ( is_array( $templates ) && count( $templates ) > 0 ) {
 
@@ -1672,7 +1679,7 @@ if ( ! class_exists( 'ES_Install' ) ) {
 				'post_status'    => 'inherit'
 			);
 			$attach_id   = wp_insert_attachment( $attachment, $file, $post_id );
-			require_once( ABSPATH . 'wp-admin/includes/image.php' );
+			require_once  ABSPATH . 'wp-admin/includes/image.php' ;
 			$attach_data = wp_generate_attachment_metadata( $attach_id, $file );
 			$res1        = wp_update_attachment_metadata( $attach_id, $attach_data );
 			$res2        = set_post_thumbnail( $post_id, $attach_id );

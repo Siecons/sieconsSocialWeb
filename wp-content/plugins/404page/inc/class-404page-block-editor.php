@@ -15,7 +15,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 if ( !class_exists( 'PP_404Page_BlockEditor' ) ) {
   
-  class PP_404Page_BlockEditor extends PPF04_SubClass {  
+  class PP_404Page_BlockEditor extends PPF06_SubClass {  
     
     /**
 	   * Do Init

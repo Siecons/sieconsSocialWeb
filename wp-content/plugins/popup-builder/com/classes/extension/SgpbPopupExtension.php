@@ -41,7 +41,7 @@ class SgpbPopupExtension implements SgpbIPopupExtension
 				'reviewUrl' => SG_POPUP_RATE_US_URL
 			)
 		);
-		
+
 		$allowPages = array(
 			'popupType',
 			'editpage',
@@ -97,6 +97,7 @@ class SgpbPopupExtension implements SgpbIPopupExtension
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'bootstrap.min.js');
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'sgPopupRangeSlider.js');
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'Backend.js');
+			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'FloatingButton.js', 'dep' => array('Backend.js'),);
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'NotificationCenter.js');
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'Popup.js');
 			$jsFiles[] = array('folderUrl'=> SG_POPUP_JS_URL, 'filename' => 'PopupConfig.js');
@@ -134,7 +135,7 @@ class SgpbPopupExtension implements SgpbIPopupExtension
 				'handle' => 'Backend.js',
 				'name' => 'SGPB_JS_LOCALIZATION',
 				'data' => $translatedData
-			);			
+			);
 
 			$localizeData[] = array(
 				'handle' => 'Popup.js',

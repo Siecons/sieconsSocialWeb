@@ -5,15 +5,17 @@ class SGPBFeedback
 {
 	public function __construct()
 	{
-		add_action('current_screen', function () {
-			if (!$this->isPluginsScreen()) {
-				return;
-			}
-
-			add_filter('sgpbAdminJsFiles', array($this, 'adminJsFilter'), 1, 1);
-			add_action('admin_footer', array($this, 'renderDeactivateFeedbackDialog'));
-		} );
+		add_action('current_screen', array($this, 'actionToCurrentScreen'));
 		add_action('wp_ajax_sgpb_deactivate_feedback', array($this, 'sgpbDeactivateFeedback'));
+	}
+
+	public function actionToCurrentScreen() {
+		if (!$this->isPluginsScreen()) {
+			return;
+		}
+
+		add_filter('sgpbAdminJsFiles', array($this, 'adminJsFilter'), 1, 1);
+		add_action('admin_footer', array($this, 'renderDeactivateFeedbackDialog'));
 	}
 
 	public function adminJsFilter($jsFiles)
